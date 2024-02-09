@@ -1,0 +1,460 @@
+---
+title: "The evolution of diverse antimicrobial responses in vancomycin-intermediate Staphylococcus aureus and its therapeutic implications"
+author: Dena Crozier, Jason Gray, and Kyle Card
+Date: 2/9/2024
+output: html_notebook
+---
+
+## Prerequisites
+
+Clear current environment
+```{r Clear current environment, include = FALSE}
+rm(list = ls())
+```
+<br>
+
+Load packages for use
+```{r Packages, message = FALSE}
+library(tidyverse)
+library(proxy)
+library(knitr)
+library(colorspace)
+library(cowplot)
+```
+<br>
+
+***
+# Experimental evolution under vancomycin selection
+```{r Read in vancomycin MIC data, messages = FALSE}
+vancomycin_MICs <- read_csv("vancomycin_MICs.csv")
+
+# In the MIC column, replace all "-" with "NA"
+vancomycin_MICs$MIC <- vancomycin_MICs$MIC %>% 
+    str_replace_all("-", "NA") %>% 
+    as.numeric()
+
+# Remove all rows with NA values in the MIC column
+vancomycin_MICs <- vancomycin_MICs %>% 
+    filter(!is.na(MIC))
+
+# Plot of vancomycin MICs over time
+vancomycin_MICs_plot <- vancomycin_MICs %>%
+    ggplot(aes(x = day, y = MIC)) +
+        geom_line(linewidth = 1.2) +
+        geom_point(size = 2) +
+        facet_wrap(~ population, nrow = 3, ncol = 6) +
+        scale_x_continuous(
+            breaks = seq(1,14,2)) +
+        scale_y_continuous(
+            limits = c(0, 8),
+            breaks = seq(0,8,2)) +
+        xlab("Day") +
+        ylab(expression("MIC (\u03BCg/mL)")) +
+        theme_cowplot() +
+        theme(panel.grid.major = element_line(color = "#3a3a3a", linewidth = 0.2))
+
+vancomycin_MICs_plot
+
+#ggsave("vancomycin_MICs_plot.png", vancomycin_MICs_plot, path = "Figures", device = "png", width = 14, height = 8, units = "in")
+```
+<br>
+
+***
+
+# Collateral responses analysis
+
+Data report the minimum inhibitory concentrations (MICs) of 8 antibiotics (cefazolin, clindamycin, daptomycin, gentamycin, meropenem, 
+nafcillin, trimethoprim-sulfamethoxazole, and vancomycin) on the MSSA ancestral clone ATCC 29213 and evolved vancomycin-intermediate populations.
+```{r Read in first-line drug MIC data, messages = FALSE}
+collateral_MICs <- read_csv("collateral_drug_MICs.csv")
+```
+<br>
+
+```{r Create data frame with drug response values}
+EstimateCR <- function(dat) {
+    # This function takes a data frame of MICs and calculates drug response values
+    # for each evolved population relative to the ancestral population.
+    ancestor_frame <- dat %>%
+        filter(population == "Ancestor")
+
+    evolved_frame <- dat %>%
+        filter(population != "Ancestor")
+
+    CR_values <- c()
+
+    # This code chunk iterates through the unique paired_IDs in the evolved_frame and
+    # filters the ancestor_frame and evolved_frame for the paired_ID. The MIC values
+    # for the ancestor and evolved populations are then used to calculate the collateral
+    # response value for each evolved population. The collateral response values are
+    # then appended to the CR_values vector.
+    for (i in unique(evolved_frame$paired_ID)) {
+        ancestor_value <- ancestor_frame %>%
+            filter(paired_ID == i) %>%
+            pull(MIC)
+
+        evolved_subframe <- evolved_frame %>%
+            filter(paired_ID == i)
+
+        for (j in 1:nrow(evolved_subframe)) {
+            evolved_value  <- evolved_subframe[j,] %>%
+                pull(MIC)
+            
+                CR_values <- c(CR_values, log2(evolved_value / ancestor_value))
+        }
+    }
+
+    # Creates a tibble of collateral response values
+    CR_col <- tibble(CR = CR_values)
+    CR_df  <- bind_cols(evolved_frame, CR_col)
+
+    # Removed paired_ID column from CR_df
+    CR_df <- CR_df %>%
+        select(-paired_ID)
+
+    return(CR_df)  
+}
+
+drug_responses <- EstimateCR(collateral_MICs)
+
+head(drug_responses)
+```
+<br>
+
+```{r Summary statistics of MIC and collateral response values, messages = FALSE}
+# Summary statistics function
+SummaryStats <- function(dat) {
+    summary_stats <- dat  %>% 
+        group_by(antibiotic, population) %>%
+        summarize(mean_MIC = mean(MIC),
+            mean_CR = mean(CR))
+    
+    return(summary_stats)
+        }
+
+summary_stats <- SummaryStats(drug_responses)
+
+# Remove vancomycin rows
+summary_stats <- summary_stats %>% 
+    filter(antibiotic != "VAN")
+
+# Create a new column called "state" in the summary_stats data frame. Populate this column with "-1", "0", or " 1" if the mean collateral response
+# value is less than, equal to, or greater than 0.
+
+summary_stats$state <- ifelse(summary_stats$mean_CR < 0, "-1", ifelse(summary_stats$mean_CR == 0, "0", "1"))
+
+head(summary_stats)
+```
+<br>
+
+```{r Mann Whitney U tests}
+# Mann-Whitney U test function
+MWTest <- function(dat, ab){
+    ancestor_df <- dat %>%
+        filter(population == "Ancestor" & antibiotic == ab) %>%
+        # Remove the replicate and paired_ID columns
+        select(-replicate, -paired_ID)
+
+    evolved_df  <- dat %>%
+    # Remove the ancestor rows from the dat data frame
+        filter(population != "Ancestor" & antibiotic == ab) %>%
+        group_by(population) %>%
+        # Calculate the mean MIC for each evolved population
+        summarize(MIC = mean(MIC)) %>%
+        # Relabel all entries in the "population" column to "Evolved"
+        mutate(population = ifelse(population == "Ancestor", "Ancestor", "Evolved"))
+
+    # Bind the antibiotic_df and ancestor_df objects
+    bound_df <- bind_rows(evolved_df, ancestor_df)
+
+    # Perform Mann Whitney U test comparing the MICs of the ancestor and evolved populations
+    MW_test <- wilcox.test(MIC ~ population, 
+                    data = bound_df, 
+                    paired = FALSE, 
+                    exact = FALSE, 
+                    correct = FALSE, 
+                    alternative = "two.sided")
+}
+
+ab_vec <- unique(summary_stats$antibiotic)
+
+MWStats <- map(ab_vec, ~MWTest(collateral_MICs, ab = .x))
+
+head(MWStats)
+```
+
+```{r Plot collateral response values}
+# Plots
+# Factor antibiotics by order of decreasing median collateral response
+antibiotic_factor <- summary_stats %>%
+    group_by(antibiotic) %>%
+    summarize(med = median(mean_CR)) %>%
+    arrange(desc(med)) %>%
+    pull(antibiotic)
+
+summary_stats$antibiotic <- factor(summary_stats$antibiotic, levels = as.factor(antibiotic_factor))
+
+CR_boxplot <- summary_stats %>%
+    ggplot(aes(x = antibiotic, y = mean_CR, fill = antibiotic)) +
+        geom_boxplot() +
+        geom_jitter(shape = 16, 
+            position = position_jitter(0.2), 
+            size = 2) +
+        xlab("Antibiotic") + 
+        ylab(expression("Log"[2]~"MIC"["evolved"]~"-"~"Log"[2]~"MIC"["ancestor"])) +
+        scale_fill_manual(values = c("#D09384", "#E4BDB2", "#F7E8E6", "#FFFFFF", 
+            "#F3EEF9", "#E3DAF3", "#D4C3EA", "#CAB7E6")) +
+        theme_cowplot() +
+        theme(legend.position = "none",
+            plot.background = element_rect(fill = "white")
+        )
+
+CR_boxplot
+
+# ggsave("CR_boxplot.png", CR_boxplot, path = "Figures", device = "png", width = 10, height = 8, units = "in")
+```
+
+```{r Calculate population probability of exhibiting a drug response}
+# For each antibiotic in the summary_stats data frame, calculate the median collateral response values using the mean_CR column.
+# Then initialize a counter (L) to zero and increment it by a fraction (1 / total number of populations) for each mean_CR value that is in concordance with the median. 
+
+# This code chunk iterates through the unique antibiotics in the summary_stats data frame and calculates the probability of a population exhibiting a drug response.
+# The probability of a population exhibiting a drug response is defined as the fraction of evolved populations that have a collateral response value that has the same sign as the median collateral response value.
+# The probability of a population exhibiting a drug response is calculated for each antibiotic and stored in the prob_vec vector.
+Likelihood <- function(dat) {
+    prob_vec <- c()
+
+    median_df <- dat %>%
+        group_by(antibiotic) %>%
+        summarize(median = median(mean_CR))
+
+for (i in unique(dat$antibiotic)) {
+    L <- 0
+
+    ab_frame <- dat %>%
+        filter(antibiotic == i)
+
+    med_CR <- ab_frame %>%
+        pull(mean_CR) %>%
+        median()
+
+    for (j in ab_frame$mean_CR) {
+        if (sign(j) == sign(med_CR)) {
+            L <- L + (1 / nrow(ab_frame))
+        }
+    }
+    prob_vec <- c(prob_vec, L)
+    }
+
+    probability_df <- tibble(antibiotic = unique(dat$antibiotic),
+        probability = prob_vec)
+
+    # Join the median_df and probability_df objects by antibiotic
+    df <- median_df %>%
+        left_join(probability_df, by = "antibiotic")
+
+    return(df)
+}
+
+likelihood_df <- Likelihood(summary_stats)
+```
+
+```{r Plot probability of drug response}
+likelihood_plot <- likelihood_df %>%
+    ggplot(aes(x = probability, y = median)) +
+        geom_hline(yintercept = 0, linetype = "dashed") +
+        geom_point(size = 5.5,
+            fill = c("#D09384", "#E4BDB2", "#FFFFFF", 
+            "#F3EEF9", "#E3DAF3", "#D4C3EA", "#CAB7E6"),
+            pch = 21) +
+        # Label each point with its corresponding antibiotic
+        geom_text(aes(label = antibiotic), 
+            hjust = -0.5,
+            vjust = -0.5, 
+            size = 5) +
+        scale_x_continuous(
+            limits = c(0.5, 1),
+            breaks = seq(0.5, 1, 0.1)) +
+        scale_y_continuous(
+            limits = c(-1, 2),
+            breaks = seq(-1, 2, 0.5)) +
+        xlab("Likelihood of drug response") +
+        ylab(expression("Log"[2]~"MIC"["evolved"]~"-"~"Log"[2]~"MIC"["ancestor"])) +
+        theme_cowplot() +
+        theme(legend.position = "none",
+            plot.background = element_rect(fill = "white"))
+
+likelihood_plot
+
+#ggsave("likelihood_plot.png", likelihood_plot, path = "Figures", device = "png", width = 10, height = 8, units = "in")
+```
+<br>
+
+***
+
+# Curation of *breseq* results
+
+We amended the *breseq* results by manually changing the gene entry for **S1, S2, S3, S4, S5, S11, and S18** from *LNEJMEBC_00080* to *liaF*. We used the ATCC 29213 reference GenBank file 
+in the *breseq* pipeline and this file has this gene annotated as *LNEJMEBC_00080*. We BLASTed the sequence against the ATCC 23235 reference genome to find the proper *liaF* annotation 
+and its associated function. We did the same for **S3** by changing *LNEJMEBC_00415* to *nfeD* and *LNEJMEBC_00416* to *floA*; **S4, S5, S6, S7, and S16** by changing *LNEJMEBC_01861* to *yycH*; 
+**S5** by changing *LNEJMEBC_00966* to *terC*; **S5, S6, and S7** by changing *LNEJMEBC_01441* to *rrf*; **S7** by changing *LNEJMEBC_00554* to *ebh*; **S9** by changing *LNEJMEBC_02663* to *hxlA*; 
+**S11** by changing *LNEJMEBC_01370* to *thrE*; and **S14** by changing *LNEJMEBC_00567* to *yozE*.
+```{r Reads in curated data, messages = FALSE}
+mutations <- read_csv("curated_mutations.csv")
+```
+<br>
+
+***
+
+# Genomic parallelism
+
+This code chunk takes the curated list of mutations and generates a binary matrix representing the gene-level mutations in each evolutionary replicate. We use this data frame for subsequent analyses 
+and to represent the mutations in the heatmap figure.
+```{r Generation of binary data frame of mutations}
+# Filter the mutations object by the presence of qualifying mutations.
+qualifying_mutations <- mutations %>%
+    filter(qualifying_mutation == 1)
+
+# Sorts the genes with qualifying_mutations by number of hits and creates a vector
+genes <- qualifying_mutations %>%
+    group_by(gene) %>%
+    summarize(hits = n()) %>%
+    arrange(desc(hits)) %>%
+    pull(gene)
+
+# Creates a vector of the unique sample designations in the qualifying_mutations object
+populations <- unique(qualifying_mutations$population)
+
+# Creates a binary matrix with the number of rows equal to the number of samples, and 
+# the number of columns equal to the number of genes in the mutations object and populates the matrix with 0s.
+binary_mat <- data.frame(matrix(0, nrow = length(populations), ncol = length(genes)))
+colnames(binary_mat) <- genes
+rownames(binary_mat) <- populations
+
+# Use the qualifying_mutations object to populate the binary_df object. 
+# This code chunk iterates through the curated_mutations_df and populates the binary_df with a 1 
+# if a mutation is present in a given gene / lineage combination
+
+for (i in seq_len(nrow(qualifying_mutations))) {
+    binary_mat[qualifying_mutations$population[i], qualifying_mutations$gene[i]] <- 1
+}
+```
+<br>
+
+We quantified the extent of parallelism in genome evolution among 18 resistant mutants evolved from the same *S. aureus* ATCC 29213 ancestral strain under increasing vancomycin selection. 
+Following Deatherage et al. 2017 and Card et al. 2021, we included only those “qualifying” mutations that unambiguously impact a single gene, including nonsynonymous point mutations and small indels
+in genes or within 150 bp upstream of the start of a gene and large deletions if at least one of the affected genes was also found to be mutated in another population. 
+We exclude synonymous mutations and mutations within multicopy elements (e.g., ribosomal RNA operons) that may result from gene conversions but cannot be fully resolved using short-read sequencing data. 
+A total of *88* mutations qualify based upon these criteria.
+
+We estimate Dice’s coefficient of similarity, *S*, for each pair of evolved populations, where $$S = \frac{2|X \cap Y|}{|X|+|Y|}$$ $|X|$ and $|Y|$ are the sets of genes with mutations in two evolved populations, 
+and $|X \cap Y|$ is the set of genes with mutations in both populations. *S* therefore ranges from 0, when the pair share no mutations in common, to 1, when both have mutations in exactly the same set of genes (Deatherage et al., 2017; Card et al. 2021).
+
+```{r Average similarity function}
+AvgSimilarity <- function(dat) {
+    # Computes similarity coefficient for all possible replicate pairs.
+    # Populates a matrix with these values
+    pwise_simil_matrix <- as.matrix(
+        simil(
+            dat,
+            method = "Dice",
+            by_rows = TRUE,
+            upper = TRUE,
+            diag = TRUE)
+    )
+  
+    # All values above (and including) the matrix diagonal are converted to
+    # NA to ease downstream wrangling
+    pwise_simil_matrix[upper.tri(pwise_simil_matrix)] <- NA
+  
+    # Converted matrix to a data frame for analysis. NA values above
+    # (and including) the matrix diagonal are incorporated into the newly
+    # formed dataframe. This piece of code drops the rows contanining NA,
+    # effectively retaining only those values *below* the matrix diagonal
+    pwise_simil_df <- as.data.frame.table(
+        pwise_simil_matrix, responseName = "value") %>%
+        rename(population_1 = Var1, population_2 = Var2) %>%
+        drop_na()
+  
+    # Computes the mean similarity coefficient for all possible replicate pairs
+    avg_similarity <- mean(pwise_simil_df$value)
+
+    return(avg_similarity)
+}
+```
+<br>
+
+```{r Average similarity}
+simil_score <- AvgSimilarity(binary_mat)
+
+simil_score
+```
+<br>
+
+The average similarity coefficient among all possible replicate pairs is **0.11**. In other words, two populations that independently evolved under vancomycin selection had on average 11% of their mutated genes in common.
+However, this analysis does not consider the probability that a gene will be mutated more than once across independent populations (i.e., in parallel). To address this issue, we estimate this probability by sampling with 
+replacement a gene *n* times, given a genome of *N* genes. In this calculation, we assume that each gene has equal length and uniformity of mutation rate across the genome (Caballero et al. (2015)).
+
+```{r Probability of parallel mutations function}
+ParallelProb <- function(dat) {
+    # Number of coding sequences (CDSs) in the ATCC 29213 genome (ATCC Genome Portal).
+    N <- 2586
+
+    # Creates a data frame with the genes that have more than one mutation and the
+    # probability of a gene being mutated more than once across independent populations
+    gene_prob <- dat %>%
+        group_by(gene) %>%
+        summarize(
+            num_populations = n_distinct(population),
+            gene_prob = (1 / N)^(num_populations - 1)) %>% 
+        filter(num_populations > 1)
+
+    return(gene_prob)
+}
+```
+<br>
+
+```{r Probability of parallel mutations}
+parallel_prob <- ParallelProb(qualifying_mutations)
+
+parallel_prob
+```
+<br>
+
+Heatmap of all qualifying mutations in the sequenced genomes
+```{r Mutation heatmap}
+mutation_heatmap <- binary_mat %>%
+    # Add a column to the binary_df object with the population designations
+    mutate(population = populations) %>%
+    # Move the populations column to the front of the binary_df object
+    select(population, everything()) %>% 
+    # Convert the binary_df object to long format with population, gene, and presence columns
+    pivot_longer(
+        cols = -population,
+        names_to = "gene",
+        values_to = "presence") %>%
+    # Converts the numeric data to catagorical variables to use a discrete colorscale in ggplot2
+    mutate(presence = ifelse(presence == 0, "no", "yes")) %>%
+  
+    # Create heatmap with genes on the x-axis and populations on the y-axis
+    ggplot(aes(x = gene, y = factor(population, level = populations), fill = presence)) +
+        geom_tile(color = "white", 
+            linewidth = 0.5) +
+        #scale_x_discrete(limits = rev(replicate_names_vec)) +
+        scale_x_discrete(limits = genes) +
+        # Reverse the order of the y-axis
+        scale_y_discrete(limits = rev) +
+        scale_fill_manual(breaks = c("no", "yes"),
+            values = c("#E7E5DF", "#7C8DA2")) +
+        ylab("Population") +
+        theme_cowplot() +
+        theme(axis.title.x = element_blank(),
+            axis.text.x = element_text(face = "italic", 
+                angle = 45, 
+                hjust = 1, 
+                vjust = 1),
+            legend.position = "none")
+
+mutation_heatmap
+
+#ggsave("mutation_heatmap.png", mutation_heatmap, path = "Figures", device = "png", width = 15, height = 8, units = "in")
+```
