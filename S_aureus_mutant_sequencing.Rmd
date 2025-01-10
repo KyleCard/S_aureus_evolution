@@ -24,7 +24,8 @@ library(pdftools)
 library(grid)
 library(cowplot)
 library(proxy)
-library(furrr)
+library(foreach)
+library(doParallel)
 library(glmnet)
 library(colorspace)
 library(pheatmap)
@@ -34,6 +35,14 @@ library(pheatmap)
 ```{r Suppress summarise info}
 options(dplyr.summarise.inform = FALSE)
 ```
+
+```{r Set up parallel processing}
+# Detect number of cores and register them for parallel processing
+num_cores <- parallel::detectCores() - 1
+cl <- makeCluster(num_cores)
+registerDoParallel(cl)
+```
+
 
 ***
 
@@ -838,28 +847,30 @@ vancomycin selection) and 446 predictors, we use L1 penalization on model
 coefficients to avoid overfitting.
 
 ```{r Logistic regression function}
-# Transpose the binary_mat data frame
-regression_df <- binary_matrix %>%
-  t() %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "treatment") %>%
-  # Remove numbers at the end of the population names
-  mutate(treatment = str_remove_all(treatment, "\\d")) %>%
-  # If the value in the treatment column is E, replace it with 1.
-  # Otherwise, replace it with 0
-  mutate(treatment = ifelse(treatment == "E", 1, 0)) %>%
-  # Remove columns in which the sum of all values is less than 3
-  select_if(~ sum(.) >= 3)
+perform_regression <- function(dat) {
+  # Transpose the binary_mat data frame
+  regression_df <- dat %>%
+    t() %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "treatment") %>%
+    # Remove numbers at the end of the population names
+    mutate(treatment = str_remove_all(treatment, "\\d")) %>%
+    # If the value in the treatment column is E, replace it with 1.
+    # Otherwise, replace it with 0
+    mutate(treatment = ifelse(treatment == "E", 1, 0)) %>%
+    # Remove columns in which the sum of all values is less than 3
+    select_if(~ sum(.) >= 3)
 
-regression_analysis <- function(dat) {
-  coef_count <- rep(0, ncol(dat[-1]))
-
-  # Multivariate logistic regression routine over 100 iterations to select more
-  # robust non-zero coefficients
-  for (i in 1:100) {
+  # Multivariate logistic regression routine over 100 iterations to select
+  # more robust non-zero coefficients
+  coef_count <- foreach(i = 1:100,
+                        .combine = "+",
+                        .multicombine = FALSE,
+                        .init = numeric(ncol(regression_df[-1])),
+                        .packages = c("glmnet")) %dopar% {
     cvfit <- cv.glmnet(
-      as.matrix(dat[, -1]),
-      as.factor(dat$treatment),
+      as.matrix(regression_df[, -1]),
+      as.factor(regression_df$treatment),
       family = binomial(link = "probit"),
       gamma = seq(0, 1, 0.1),
       nfolds = 3,
@@ -868,8 +879,8 @@ regression_analysis <- function(dat) {
     )
 
     fit_res <- glmnet(
-      as.matrix(dat[, -1]),
-      as.factor(dat$treatment),
+      as.matrix(regression_df[, -1]),
+      as.factor(regression_df$treatment),
       family = binomial(link = "probit"),
       lambda = cvfit$relaxed$lambda.min,
       alpha = cvfit$relaxed$gamma.min
@@ -878,9 +889,11 @@ regression_analysis <- function(dat) {
     coef_res <- as.matrix(fit_res$beta)
     idx <- which(coef_res != 0)
 
-    for (r in idx) {
-      coef_count[r] <- coef_count[r] + 1
-    }
+    # Create a temporary vector for this iteration only
+    tmp_count <- numeric(ncol(regression_df[-1]))
+    tmp_count[idx] <- 1
+
+    return(tmp_count)
   }
 
   idx <- which(coef_count >= 20)
@@ -889,7 +902,7 @@ regression_analysis <- function(dat) {
   # (i.e., these coefficients were associated with treatment status in at least
   # 20 of the 100 iterations)
   coef_matrix <- as.matrix(regression_df[-1][, idx])
-  rownames(coef_matrix) <- colnames(binary_matrix)
+  rownames(coef_matrix) <- colnames(dat)
 
   # Subset the matrix to include only the experimental populations
   exp_coef_matrix <- coef_matrix[88:105, ]
@@ -909,7 +922,8 @@ regression_analysis <- function(dat) {
 <br>
 
 ```{r Plot mutation heat map}
-coef_matrix <- regression_analysis(regression_df)
+coef_matrix <- perform_regression(binary_matrix)
+stopCluster(cl)
 
 # Heat map of control populations
 pheatmap(coef_matrix,
