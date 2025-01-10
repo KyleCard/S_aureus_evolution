@@ -27,6 +27,7 @@ library(proxy)
 library(furrr)
 library(glmnet)
 library(colorspace)
+library(pheatmap)
 ```
 <br>
 
@@ -45,7 +46,7 @@ Load data
 # experimental populations evolved under increasing vancomycin concentrations
 # until they reach intermediate resistance levels (4 - 8 ug/mL).
 
-vancomycin_MICs <- read_csv("vancomycin_MICs.csv",
+vancomycin_MICs <- read_csv("data/vancomycin_MICs.csv",
   show_col_types = FALSE
 )
 ```
@@ -181,7 +182,7 @@ Load data
 # vancomycin -- on the MSSA ancestral clone ATCC 29213 and evolved
 # vancomycin-intermediate populations.
 
-collateral_MICs <- read_csv("collateral_drug_MICs.csv",
+collateral_MICs <- read_csv("data/collateral_drug_MICs.csv",
   show_col_types = FALSE
 )
 ```
@@ -540,7 +541,7 @@ population given that each population had an average read coverage depth of
 vancomycin-evolved lines and *3585* mutations qualify in the control lines.
 
 ```{r Reads in mutation data, messages = FALSE}
-mutations <- read_csv("mutations.csv",
+mutations <- read_csv("data/mutations.csv",
   show_col_types = FALSE
 )
 
@@ -851,13 +852,11 @@ regression_df <- binary_matrix %>%
   select_if(~ sum(.) >= 3)
 
 regression_analysis <- function(dat) {
-  # Multivariate logistic regression routine over 100 iterations to select more
-  # robust non-zero coefficients
   coef_count <- rep(0, ncol(dat[-1]))
 
-  plan(multisession)
-
-  future_map(1:100, function(i) {
+  # Multivariate logistic regression routine over 100 iterations to select more
+  # robust non-zero coefficients
+  for (i in 1:100) {
     cvfit <- cv.glmnet(
       as.matrix(dat[, -1]),
       as.factor(dat$treatment),
@@ -879,18 +878,18 @@ regression_analysis <- function(dat) {
     coef_res <- as.matrix(fit_res$beta)
     idx <- which(coef_res != 0)
 
-    return(idx)
-  }) %>% 
-    unlist() %>% 
-    table() %>% 
-    as.integer() -> coef_count
+    for (r in idx) {
+      coef_count[r] <- coef_count[r] + 1
+    }
+  }
+
   idx <- which(coef_count >= 20)
 
   # Select columns of the regression_df data frame based on the idx vector
   # (i.e., these coefficients were associated with treatment status in at least
   # 20 of the 100 iterations)
   coef_matrix <- as.matrix(regression_df[-1][, idx])
-  rownames(coef_matrix) <- colnames(dat)
+  rownames(coef_matrix) <- colnames(binary_matrix)
 
   # Subset the matrix to include only the experimental populations
   exp_coef_matrix <- coef_matrix[88:105, ]
