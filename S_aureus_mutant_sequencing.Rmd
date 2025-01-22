@@ -26,8 +26,10 @@ library(cowplot)
 library(proxy)
 library(foreach)
 library(doParallel)
+library(MASS)
 library(glmnet)
 library(pheatmap)
+library(BayesLCA)
 ```
 <br>
 
@@ -519,7 +521,7 @@ TSB medium without vancomycin, whereas the experimental lines evolved
 in TSB medium supplemented with vancomycin. We concatenated the breseq
 output files for each control and experimental population, labeled "C1"
 through "C87" and "E1" through "E18", respectively. We also manually
-curated the breseq output files to ensure that the mutations were correctly
+curated the *breseq* output files to ensure that the mutations were correctly
 identified and annotated. Lastly, following Deatherage et al. 2017 and
 Card et al. 2021, for each mutation, we determined whether it "qualified"
 for further analyses based on the following criteria:
@@ -596,7 +598,7 @@ of genomic parallelism than the control lines.
 ---
 
 To evaluate the statistical significance of the observed difference between
-the vancomycin-adapted and control lines, we generated a bootsrap distribution
+the vancomycin-adapted and control lines, we generated a bootstrap distribution
 assuming no difference between the two groups. We pooled all data into one
 combined dataset, then repeatedly sampled (with replacement) two new subsets of
 the same sizes as the original groups. For each bootstrap iteration
@@ -607,7 +609,7 @@ of bootstrap iterations where the difference was greater than or equal to the
 observed difference.
 
 ```{r Generation of binary data frame of mutations}
-generate_binary_matrix <- function(dat, omit = NULL) {
+generate_binary_matrix <- function(dat) {
   # Creates a vector of the unique sample designations in the
   # qualifying_mutations object
   populations <- unique(dat$population)
@@ -619,12 +621,6 @@ generate_binary_matrix <- function(dat, omit = NULL) {
     summarize(hits = n()) %>%
     arrange(desc(hits)) %>%
     pull(gene)
-
-  # If the omit argument is not NULL, then the genes vector is filtered to
-  # exclude the genes in the omit vector (used in downstream analysis)
-  if (!is.null(omit)) {
-    genes <- genes[!genes %in% omit]
-  }
 
   # Creates a binary matrix with the number of rows equal to the number of
   # samples, and the number of columns equal to the number of genes in the
@@ -657,7 +653,6 @@ binary_matrix <- generate_binary_matrix(qualifying_mutations)
 
 ```{r Similarity and bootstrap function}
 perform_genomic_analysis <- function(dat, num_trials = 10000) {
-  # Function to perform genomic analysis
   calculate_similarity <- function(dat, bootstrap = FALSE) {
     if (bootstrap == TRUE) {
       # Sample the lines, with replacement, 105 times.
@@ -673,7 +668,7 @@ perform_genomic_analysis <- function(dat, num_trials = 10000) {
     }
 
     # Computes Dice's Similarity Coefficient for all possible replicate pairs.
-    # Populates a matrix with these values
+    # Populates a matrix with these values.
     pwise_simil_matrix <- as.matrix(
       simil(dat,
         method = "Dice",
@@ -684,14 +679,14 @@ perform_genomic_analysis <- function(dat, num_trials = 10000) {
     )
 
     # All values above (and including) the matrix diagonal are converted to
-    # NA to ease downstream wrangling
+    # NA to ease downstream wrangling.
     diag(pwise_simil_matrix) <- NA
     pwise_simil_matrix[upper.tri(pwise_simil_matrix)] <- NA
 
     # Converted matrix to a data frame for analysis. NA values above
     # (and including) the matrix diagonal are incorporated into the newly
     # formed data frame. This piece of code drops the rows containing NA,
-    # effectively retaining only those values *below* the matrix diagonal
+    # effectively retaining only those values *below* the matrix diagonal.
     pwise_simil_df <- as.data.frame.table(pwise_simil_matrix,
       responseName = "value"
     ) %>%
@@ -707,10 +702,10 @@ perform_genomic_analysis <- function(dat, num_trials = 10000) {
       )
 
 
-    ## First part of the summary output if not performing a bootstrap analysis
+    ## First part of the summary output ##
 
     # Computes the mean pairwise similarity within the vancomycin group
-    # and control group
+    # and control group.
     avg_similarity_df <- pwise_simil_df %>%
       group_by(population_1, population_2) %>%
       summarize(avg = mean(value)) %>%
@@ -718,16 +713,20 @@ perform_genomic_analysis <- function(dat, num_trials = 10000) {
       filter(population_1 == population_2)
 
 
-    ## Second part of the summary output if not performing a subsequent
-    ## bootstrap analysis
+    ## Second part of the summary output ##
 
     difference <- avg_similarity_df[2, 3] - avg_similarity_df[1, 3]
-
     names(difference) <- "difference"
 
-    # If the perform_genomic_analysis function is told to perform a bootstrap
-    # analysis, then only the difference is returned. The significance of this
-    # statistic is then calculated.
+    # When the bootstrap argument is FALSE, then the calculate_similarity
+    # function returns a list containing the *observed* mean pairwise
+    # similarity within the vancomycin-adapted and control lines, and the
+    # difference between these two values.
+
+    # When the bootstrap argument is TRUE, then the calculate_similarity
+    # function returns a data frame containing the *bootstrap* mean pairwise
+    # similarity within the vancomycin-adapted and control lines, and the
+    # difference between these two values.
     if (bootstrap == FALSE) {
       results <- list(avg_similarity_df, difference)
     } else {
@@ -773,8 +772,8 @@ perform_genomic_analysis <- function(dat, num_trials = 10000) {
     return(results)
   }
 
-  # Calculate average pairwise similarity within the vancomycin-adapted
-  # and control lines
+  # Calculate *observed* average pairwise similarity within the
+  # vancomycin-adapted and control lines
   similarity <- calculate_similarity(dat)
 
   # Perform bootstrap analysis
@@ -850,23 +849,86 @@ ggsave("bootstrap_plot.pdf",
 ```
 <br>
 
+```{r Multidimensional scaling}
+perform_mds <- function(dat) {
+  # Computes Dice's Similarity Coefficient for all possible replicate pairs.
+  # Populates a matrix with these values.
+  pwise_simil_matrix <- as.matrix(
+    simil(binary_matrix,
+      method = "Dice",
+      by_rows = TRUE,
+      upper = TRUE,
+      diag = TRUE
+    )
+  )
+
+  mds_res <- isoMDS(
+                    as.dist(1.0 - pwise_simil_matrix),
+                    maxit = 1000)
+
+  mds_res <- mds_res$points %>%
+    as_tibble() %>%
+    rename(
+      MDS1 = V1,
+      MDS2 = V2
+    ) %>%
+    mutate(Group = ifelse(grepl("C", rownames(pwise_simil_matrix)),
+                          yes = "Control",
+                          no = "Treated"))
+
+  return(mds_res)
+}
+
+```
+<br>
+
+```{r Multidimensional scaling results}
+mds <- perform_mds(binary_matrix)
+```
+<br>
+
+```{r Multidimensional scaling plot}
+mds_plot <- mds %>%
+  ggplot(aes(x = MDS1, y = MDS2, color = Group)) +
+  # Place a border around points
+  geom_point(size = 3) +
+  xlab("MDS1") +
+  ylab("MDS2") +
+  scale_color_manual(values = c("#c4c4c4", "#cf2828")) +
+  theme_cowplot() +
+  theme(plot.background = element_rect(fill = "white"))
+
+mds_plot
+```
+<br>
+
+```{r Save multidimensional scaling plot}
+ggsave("mds_plot.png",
+  mds_plot,
+  path = "Figures",
+  device = "png",
+  width = 10,
+  height = 8,
+  units = "in"
+)
+
+```
+
 The bootstrap analysis showed that the vancomycin-adapted lines differ
 significantly in their genetic responses relative to the control lines.
-However, this analysis does not specify which genes are significantly
-associated with each treatment. To identify these genes, we perform
-a multivariate logistic regression with the treatment status (i.e., vancomycin
-or no vancomycin) as the outcome and the presence or absence of a mutation in
-each gene as the predictors. We only include in our model qualifying mutations
-that occur in at least three populations resulting in 446 gene-level mutations.
-Because there are only 18 outcome events (i.e., populations that evolved under
-vancomycin selection) and 446 predictors, we use L1 penalization on model
-coefficients to avoid overfitting.
+However, this analysis does not specify which genes are associated with each 
+treatment. To identify these genes, we perform a multivariate logistic
+regression with the treatment status (i.e., vancomycin or no vancomycin) as the
+outcome and the qualifying gene-level mutations as the predictors. We only
+include in our model qualifying mutations that occur in at least three
+populations resulting in 446 gene-level mutations. Because there are only
+18 outcome events (i.e., populations that evolved under vancomycin selection)
+and 446 predictors, we use L1 penalization on model coefficients to avoid
+overfitting.
 
 ```{r Logistic regression function}
 perform_regression <- function(dat) {
-  # Transpose the binary_mat data frame
-  regression_df <- dat %>%
-    t() %>%
+  regression_df <- binary_matrix %>%
     as.data.frame() %>%
     rownames_to_column(var = "treatment") %>%
     # Remove numbers at the end of the population names
@@ -877,8 +939,8 @@ perform_regression <- function(dat) {
     # Remove columns in which the sum of all values is less than 3
     select_if(~ sum(.) >= 3)
 
-  # Multivariate logistic regression routine over 100 iterations to select
-  # more robust non-zero coefficients
+  # Multivariate logistic regression routine over 10,000 iterations to select
+  # robust non-zero coefficients
 
   # Detect number of cores and register parallel backend
   cl <- makeCluster(detectCores() - 1)
@@ -925,9 +987,9 @@ perform_regression <- function(dat) {
 
   # Select columns of the regression_df data frame based on the idx vector
   # (i.e., these coefficients were associated with treatment status in at least
-  # 20 of the 100 iterations)
+  # 2,000 of the 10,000 iterations)
   coef_matrix <- as.matrix(regression_df[-1][, idx])
-  rownames(coef_matrix) <- colnames(dat)
+  rownames(coef_matrix) <- rownames(dat)
 
   # Subset the matrix to include only the experimental populations
   exp_coef_matrix <- coef_matrix[88:105, ]
@@ -977,3 +1039,128 @@ ggsave("mutation_heatmap.png",
 )
 ```
 <br>
+
+```{r Latent class analysis function}
+perform_lca <- function(dat) {
+  # Filter out the control lines in the input matrix and remove columns
+  # (features) in which the sum of all values is less than 3
+
+  mut_mat <- dat[grepl(pattern = "^E", rownames(dat)), ]
+  mut_mat <- mut_mat[, colSums(mut_mat) >= 3]
+
+  estimate_blca_res <- function(mut_mat, num_classes) {
+    # Subsample the lca_mat matrix by randomly selecting 90% of the rows
+    # and 90% of the columns
+    local_mut_mat <- mut_mat[sample(seq_len(nrow(mut_mat)),
+                                    size = ceiling(nrow(mut_mat) * 0.9),
+                                    replace = FALSE),
+                             sample(seq_len(ncol(mut_mat)),
+                                    size = ncol(mut_mat) * 0.9,
+                                    replace = FALSE)]
+
+    tryCatch(expr = {
+      # Main routine of LCA, given number of clusters 2:5 estimates the model
+      # parameters and selects the best model based on BIC. Based on the best
+      # model Cluster assignments are made and kept track of
+      local_blca_res <- map(num_classes,
+                            ~ blca(X = local_mut_mat,
+                                   G = .x,
+                                   method = "em",
+                                   restarts = 5,
+                                   start.vals = "across"))
+
+      best_k <- which.max(map_dbl(local_blca_res,
+                                  ~ .x$BIC))
+
+      best_res <- local_blca_res[[best_k]]
+
+      if ((nrow(best_res$Z) == nrow(local_mut_mat)) &
+            is.null(rownames(best_res$Z))) {
+        cluster_assign <- setNames(map_int(1:nrow(best_res$Z),
+                                           ~ which.max(best_res$Z[.x, ])),
+                                   rownames(local_mut_mat))
+
+        return(cluster_assign)
+
+      } else if (!is.null(rownames(best_res$Z))) {
+        cluster_assign <- setNames(map_int(1:nrow(best_res$Z),
+                                           ~ which.max(best_res$Z[.x, ]))
+                                   [match(map_chr(1:nrow(local_mut_mat),
+                                                  ~ paste(local_mut_mat[.x, ],
+                                                          collapse = "")),
+                                          table = rownames(best_res$Z))],
+                                   rownames(local_mut_mat))
+
+        return(cluster_assign)
+      } else {
+        return(NULL)
+      }
+    }, error = function(cond) {
+      return(NULL)
+    }, warning = function(cond) {
+      return(NULL)
+    }
+    )
+  }
+
+  # Detect number of cores and register parallel backend
+  cl <- makeCluster(detectCores() - 1)
+  registerDoParallel(cl)
+
+  blca_res_em <- foreach(
+    i = 1:1000,
+    .packages = c("BayesLCA", "purrr")
+  ) %dopar% {
+    map(2:5,
+        ~ estimate_blca_res(mut_mat, .x))
+  }
+
+  stopCluster(cl)
+
+  blca_res_em <- discard(blca_res_em, is.null)
+
+  sorted_ids <- sort(reduce(map(blca_res_em, names), union))
+
+  pair_mat <- Matrix(0,
+                     ncol = length(sorted_ids),
+                     nrow = length(sorted_ids),
+                     dimnames = list(sorted_ids, sorted_ids))
+  count_mat <- Matrix(0,
+                      ncol = length(sorted_ids),
+                      nrow = length(sorted_ids),
+                      dimnames = list(sorted_ids, sorted_ids))
+
+  for(r in 1:length(blca_res_em)) {
+    message(sprintf("Processing Run Index: %d", r))
+    local_res <- blca_res_em[[r]]
+    local_k <- max(local_res)
+
+    local_clust <- as.matrix(Matrix::Diagonal(n = local_k + 1)[local_res, ])
+    local_clust <- local_clust %*% t(local_clust)
+
+    # Reorder
+    idx <- match(sorted_ids, table = names(local_res))
+    local_clust <- local_clust[idx, idx]
+    local_clust[is.na(local_clust)] <- 0
+    pair_mat <- pair_mat + local_clust
+
+    local_clust <- as.matrix(Matrix::Diagonal(n = 2)[rep(1,
+                                                         length(local_res)), ])
+    local_clust <- local_clust %*% t(local_clust)
+    idx <- match(sorted_ids, table = names(local_res))
+    local_clust <- local_clust[idx, idx]
+    local_clust[is.na(local_clust)] <- 0
+    count_mat <- count_mat + local_clust
+  }
+
+  freq_mat <- pair_mat / (count_mat + 1)
+  freq_mat <- Matrix::forceSymmetric(freq_mat)
+  freq_mat <- as.matrix(freq_mat)
+
+  return(freq_mat)
+}
+```
+
+```{r Perform latent class analysis}
+freq_mat <- perform_lca(coef_matrix)
+```
