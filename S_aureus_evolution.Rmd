@@ -1,0 +1,398 @@
+---
+title: "The evolution of diverse antimicrobial responses in
+vancomycin-intermediate Staphylococcus aureus and its therapeutic implications"
+author: Kyle Card and Arda Durmaz
+Date: 1/28/2025
+output: html_notebook
+---
+
+## Prerequisites - required packages and functions
+
+```{r Packages, message = FALSE}
+library(tidyverse)
+library(magick)
+library(pdftools)
+library(grid)
+library(cowplot)
+library(proxy)
+library(foreach)
+library(doParallel)
+library(MASS)
+library(glmnet)
+library(BayesLCA)
+library(Matrix)
+
+# Need to first (i.) install.packages("BiocManager), and then
+# (ii.) run BiocManager::install("ComplexHeatmap")
+library(ComplexHeatmap)
+
+library(ggsci)
+library(RColorBrewer)
+library(circlize)
+library(ggnewscale)
+```
+
+```{r Load functions}
+source("functions.R")
+```
+
+```{r Suppress summarise info}
+options(dplyr.summarise.inform = FALSE)
+```
+<br>
+
+
+***
+
+# Experimental evolution under vancomycin selection
+
+```{r Vancomycin MIC data}
+# Data report the minimum inhibitory concentrations (MICs) of the 18
+# experimental populations evolved under increasing vancomycin concentrations
+# until they reach intermediate resistance levels (4 - 8 ug/mL).
+vancomycin_MICs <- read_csv(
+  file = "data/vancomycin_MICs.csv",
+  show_col_types = FALSE
+)
+
+vancomycin_MICs
+```
+<br>
+
+```{r Generate Figure 1, warning = FALSE}
+figure_1 <- generate_vanc_plot(.x = vancomycin_MICs)
+
+figure_1
+```
+<br>
+
+```{r Save plot of vancomycin MIC data with experimental schema}
+ggsave(
+  filename = "figure_1.tiff",
+  plot = figure_1,
+  path = "Figures",
+  device = "tiff",
+  width = 12,
+  height = 8,
+  units = "in"
+)
+```
+<br>
+
+***
+
+# Genomic evolution
+
+We used the *breseq* pipeline (v0.39.0) to identify mutations in the control and
+treated populations. The control lines evolved in TSB medium without vancomycin,
+whereas the treated lines evolved in TSB medium supplemented with vancomycin.
+We concatenated the *breseq* output files for each control and treated
+population, labeled "C1" through "C87" and "T1" through "T18", respectively.
+We also manually curated the *breseq* output files to ensure that the mutations
+were correctly identified and annotated. Lastly, following Deatherage et al.
+2017 and Card et al. 2021, for each mutation, we determined whether it
+"qualified" for further analyses based on the following criteria:
+
+1. It was a nonsynonymous point mutation or small indel in a single gene.
+2. An intergenic mutation within 150 bp upstream of the start of a gene.
+3. A large deletion if at least one of the affected genes was also found
+to be mutated in another population.
+
+Conversely, we excluded mutations from further analyses if they were:
+
+1. Synonymous (does not affect the resulting amino acid sequence).
+2. Multicopy elements (e.g., ribosomal RNA operons) that may result from
+gene conversions but cannot be fully resolved using short-read sequencing data.
+
+We also include all mutations that were at or above 5% frequency in the
+populations given that each population had an average read coverage depth of
+>100X. A total of *227* mutations qualify based upon these criteria in the
+vancomycin-evolved lines and *3585* mutations qualify in the control lines.
+
+```{r Reads in mutation data, messages = FALSE}
+mutations <- read_csv(
+  file = "data/mutations.csv",
+  show_col_types = FALSE
+)
+
+# Filter the mutations object by the presence of qualifying mutations.
+qualifying_mutations <- mutations %>%
+  filter(qualifying_mutation == "yes")
+```
+<br>
+
+The following code:
+
+1. Generates a binary matrix representing the qualifying gene-level mutations
+in each evolutionary replicate. We use this matrix for subsequent analyses.
+2. Calculates the average pairwise similarity within the vancomycin-adapted
+and the control lines. We then compare the average similarity between the two
+groups to determine if the vancomycin-adapted lines exhibit a higher degree of
+genomic parallelism than the control lines.
+3. Performs a bootstrap analysis to evaluate the statistical significance of
+the observed difference between the vancomycin-adapted and control lines.
+
+```{r Generate binary matrix and perform genomic analyses}
+binary_matrix <- generate_binary_matrix(.x = qualifying_mutations)
+genomic_results <- perform_genomic_analysis(.x = binary_matrix)
+```
+<br>
+
+---
+
+We quantified the extent of genomic parallelism in the vancomycin-adapted lines
+and in the control lines by calculating Dice's Similarity Coefficient (*S*)
+for each population pair, where:
+
+$$S = \frac{2|X \cap Y|}{|X|+|Y|}$$
+
+$|X|$ and $|Y|$ represent the number of genes with qualifying mutations in each
+population, and $|X \cap Y|$ is the number of mutated genes in common between
+them. *S* therefore ranges from 0, when the pair share no mutations in common,
+to 1, when both have mutations in exactly the same set of genes
+(Deatherage et al., 2017; Card et al. 2021).
+
+By default, the perform_genomic_analysis function will output a list containing
+two elements:
+
+1. Average pairwise similarity within the vancomycin-treated group
+($\overline{S}_v \approx 0.0625$) and within the control group
+($\overline{S}_c \approx 0.0290$). In other words, two populations that
+independently evolved under vancomycin selection had, on average, *6.25%* of
+their mutated genes in common, whereas those that evolved under identical
+conditions, but without vancomycin, shared on average only *2.90%* of their
+mutated genes.
+
+2. The difference between these averages
+($\overline{S}_v - \overline{S}_c \approx 0.0335$) represents how much greater
+(on average) the vancomycin-adapted lines' similarity is relative to the control
+lines. We expect that the vancomycin-adapted lines will exhibit a higher degree
+of genomic parallelism than the control lines.
+
+```{r Similarity results}
+similarity <- genomic_results$similarity
+names(similarity) <- c("Average pairwise similarity", "Difference in means")
+
+head(similarity)
+```
+<br>
+
+---
+
+To evaluate the statistical significance of the observed difference between
+the vancomycin-adapted and control lines, we generated a bootstrap distribution
+assuming no difference between the two groups. We pooled all data into one
+combined dataset, then repeatedly sampled (with replacement) two new subsets of
+the same sizes as the original groups. For each bootstrap iteration
+(10,000 total), we calculated the difference in mean similarities between the
+subsets. We then compared our observed difference to the distribution of
+differences generated by the bootstrap analysis. The *p*-value is the proportion
+of bootstrap iterations where the difference was greater than or equal to the
+observed difference.
+
+```{r Bootstrap results}
+bootstrap_data <- genomic_results$bootstrap_results
+significance <- genomic_results$significance
+
+bootstrap_results <- list(
+  ... = bootstrap_data,
+  ... = significance
+)
+
+names(bootstrap_results) <- c("Bootstrap data", "Significance")
+
+head(bootstrap_results)
+```
+<br>
+
+The bootstrap analysis showed that the vancomycin-adapted lines differ
+significantly in their genetic responses relative to the control lines.
+However, this analysis does not specify which genes are associated with each 
+treatment. To identify these genes, we perform a multivariate logistic
+regression with the treatment status (i.e., vancomycin or no vancomycin) as the
+outcome and the qualifying gene-level mutations as the predictors. We only
+include in our model qualifying mutations that occur in at least three
+populations resulting in 446 gene-level mutations. Because there are only
+18 outcome events (i.e., populations that evolved under vancomycin selection)
+and 446 predictors, we use L1 penalization on model coefficients to avoid
+overfitting. We also performed a Bayesian latent class analysis (BLCA) to group
+lines based on their mutation profiles. 
+
+```{r Logistic regression and plot of mean model coefficients, message = FALSE}
+regression_blca_results <- perform_regression_blca(.x = binary_matrix)
+
+regression_summary <- regression_blca_results[[1]]
+OR_matrix <- regression_blca_results[[2]]
+```
+<br>
+
+**Plots**
+
+```{r Plot the bootstrap distribution of differences}
+figure_S1 <- bootstrap_data %>%
+  ggplot(
+    aes(x = difference)
+  ) +
+  geom_histogram(
+    binwidth = 0.001,
+    fill = "#7C8DA2"
+  ) +
+  geom_vline(
+    xintercept = similarity[[2]]$difference,
+    linetype = "dashed",
+    color = "#000000"
+  ) +
+  scale_y_continuous(breaks = seq(0, 600, 100)) +
+  annotate(
+    geom = "text",
+    x = similarity[[2]]$difference + 0.012,
+    y = 550,
+    label = "Observed difference",
+    color = "#000000"
+  ) +
+  annotate(
+    geom = "text",
+    x = similarity[[2]]$difference + 0.012,
+    y = 500,
+    label = paste(
+      "p =",
+      round(
+        x = significance,
+        digits = 4
+      )
+    ),
+    color = "#000000"
+  ) +
+  xlab("Difference in mean similarity") +
+  ylab("Frequency") +
+  theme_cowplot() +
+  theme(
+    legend.position = "none",
+    plot.background = element_rect(fill = "white")
+  )
+
+figure_S1
+```
+<br>
+
+```{r Plot of avg odds ratios from the logistic regression and mutation heatmap}
+figure_2 <- generate_OR_heatmap_plot(
+  .x = regression_summary,
+  .y = OR_matrix
+)
+
+figure_2
+```
+<br>
+
+```{r Save bootstrap plot}
+ggsave(
+  filename = "figure_S1.tiff",
+  plot = figure_S1,
+  path = "Figures",
+  device = "tiff",
+  width = 10,
+  height = 8,
+  units = "in"
+)
+```
+<br>
+
+
+```{r Save mutation heat map}
+ggsave(
+  filename = "figure_2.tiff",
+  figure_2,
+  path = "Figures",
+  device = "tiff",
+  width = 22,
+  height = 5,
+  units = "in"
+)
+```
+<br>
+
+***
+
+# Collateral responses analysis
+
+Load data
+
+```{r Collateral drug MIC data}
+# Data report the MICs of 8 antibiotics -- cefazolin, clindamycin, daptomycin,
+# gentamycin, meropenem, nafcillin, trimethoprim-sulfamethoxazole, and
+# vancomycin -- on the MSSA ancestral clone ATCC 29213 and evolved
+# vancomycin-intermediate populations.
+
+collateral_MICs <- read_csv(
+  file = "data/collateral_drug_MICs.csv",
+  show_col_types = FALSE
+)
+```
+<br>
+
+```{r Estimate collateral response values, messages = FALSE}
+collateral_responses <- calculate_collateral_responses(.x = collateral_MICs)
+
+head(collateral_responses)
+```
+<br>
+
+```{r Calculate summary statistics of CR values, messages = FALSE}
+CR_summary_stats <- perform_summary_stats(.x = collateral_responses)
+
+head(CR_summary_stats)
+```
+<br>
+
+We used Mann-Whitney U tests to compare the collateral response values of
+the evolved populations to the ancestral population for each antibiotic.
+
+```{r Perform Mann Whitney U tests}
+mw_stats <- map(
+  unique(collateral_MICs$antibiotic),
+  ~ perform_MW_test(
+    .data = collateral_MICs,
+    ab = .x
+  )
+)
+
+names(mw_stats) <- unique(collateral_MICs$antibiotic)
+
+list(mw_stats)
+```
+<br>
+
+We estimate the populations' probability of exhibiting a partiular drug response
+following empiric treatment. We computed this estimate for each antibiotic by
+comparing the MIC measurements of the evolved populations to the median MIC.
+
+```{r Calculate population probability of exhibiting a drug response}
+likelihood_df <- calculate_likelihood(CR_summary_stats)
+
+head(likelihood_df)
+```
+<br>
+
+```{r Plot collateral response values}
+figure_4 <- generate_CR_likelihood_plot(
+  .x = CR_summary_stats,
+  .y = likelihood_df
+)
+
+figure_4
+```
+<br>
+
+```{r Save plot of probability of drug response}
+ggsave(
+  filename = "figure_4.tiff",
+  plot = figure_4,
+  path = "Figures",
+  device = "tiff",
+  width = 16,
+  height = 8,
+  units = "in"
+)
+```
+<br>
