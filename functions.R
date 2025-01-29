@@ -1218,8 +1218,7 @@ perform_summary_stats <- function(.x) {
     summarize(
       mean_MIC = mean(MIC),
       mean_CR = mean(CR)
-    ) %>%
-    filter(antibiotic != "VAN")
+    )
 
   # Create a new column called "state" in the summary_stats data frame.
   # Populate this column with "-1", "0", or " 1" if the mean collateral
@@ -1288,6 +1287,9 @@ perform_MW_test <- function(.data, ab) {
 ## -----------------------------------------------------------------------------
 
 calculate_likelihood <- function(.x) {
+  .x <- .x %>%
+    filter(antibiotic != "VAN")
+  
   prob_vec <- c()
 
   # For each antibiotic in the summary_stats data frame, we calculate the
@@ -1358,6 +1360,9 @@ generate_CR_likelihood_plot <- function(.x, .y) {
     x = .x$antibiotic,
     levels = as.factor(antibiotic_factor)
   )
+
+  .x  <- .x  %>%
+    filter(antibiotic != "VAN")
 
   CR_boxplot <- .x %>%
     ggplot(
@@ -1447,4 +1452,79 @@ generate_CR_likelihood_plot <- function(.x, .y) {
   )
 
   return(combined_plot)
+}
+
+
+## -----------------------------------------------------------------------------
+## Function to plot association between cluster assignment and CR values
+## -----------------------------------------------------------------------------
+
+generate_CR_cluster_plot <- function(.x, clusters = 2) {
+  # Factor antibiotics by order of decreasing median collateral response
+  antibiotic_factor <- .x %>%
+    group_by(antibiotic) %>%
+    summarize(med = median(mean_CR)) %>%
+    arrange(
+      desc(med)
+    ) %>%
+    pull(antibiotic)
+
+  .x$antibiotic <- factor(
+    x = .x$antibiotic,
+    levels = as.factor(antibiotic_factor)
+  )
+
+  cluster_assignments <- read_csv(
+    file = paste0(
+      ... = "data/cluster_results/ClusterResults_AIC_treatedOnly_K",
+      ... = clusters,
+      ... = ".csv"
+    ),
+    show_col_types = FALSE
+  )
+
+  # Assign clusters to the populations (needs perform_regression_blca to be
+  # run first). The cluster assignment data is stored in the file
+  # "ClusterResults_AIC_treatedOnly_K$.csv", where $ is the number of clusters
+  # (K = 2 through 7).
+  cluster_assignments <- cluster_assignments %>%
+    mutate(
+      population = str_remove(
+        string = ID,
+        pattern = "T"
+      )
+    ) %>%
+    dplyr::select(-ID)
+
+  CR_cluster_data <- .x %>%
+    left_join(
+      cluster_assignments,
+      by = c("population" = "population")
+    )
+
+  CR_cluster_plot <- CR_cluster_data %>%
+    ggplot(
+      aes(
+        x = antibiotic,
+        y = mean_CR,
+        fill = Cluster
+      )
+    ) +
+    geom_boxplot() +
+    xlab("Antibiotic") +
+    ylab(
+      expression(
+        "Log"[2] ~ "MIC"["evolved"] ~ "-" ~ "Log"[2] ~ "MIC"["ancestor"]
+      )
+    ) +
+    scale_fill_manual(
+      values = c("#4ABCD7", "#E74B34")
+    ) +
+    theme_cowplot() +
+    theme(
+      legend.position = "none",
+      plot.background = element_rect(fill = "white")
+    )
+
+  return(CR_cluster_plot)
 }

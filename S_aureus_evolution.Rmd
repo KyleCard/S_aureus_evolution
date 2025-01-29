@@ -384,6 +384,14 @@ figure_4
 ```
 <br>
 
+```{r Plot association between cluster assignment and CR values}
+figure_5 <- generate_CR_cluster_plot(
+  .x = CR_summary_stats
+)
+
+figure_5
+```
+
 ```{r Save plot of probability of drug response}
 ggsave(
   filename = "figure_4.tiff",
