@@ -212,8 +212,7 @@ perform_genomic_analysis <- function(.x, iterations = 10000) {
     # Computes the mean pairwise similarity within the vancomycin group
     # and control group.
     avg_similarity_df <- pwise_simil_df %>%
-      group_by(population_1, population_2
-      ) %>%
+      group_by(population_1, population_2) %>%
       summarize(avg = mean(value)) %>%
       as_tibble() %>%
       filter(population_1 == population_2) %>%
@@ -531,9 +530,9 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
           return(cluster_assign)
         } else {
           if ((nrow(best_res$Z) == nrow(local_matrix)) &
-            is.null(
-              rownames(best_res$Z)
-            )
+              is.null(
+                rownames(best_res$Z)
+              )
           ) {
             cluster_assign <- setNames(
               apply(
@@ -602,7 +601,7 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
       .export = "perform_blca"
     ) %dopar% {
       map(
-        # Factor over both the control and treated groups
+        # Factor over both the control and treated group labels
         .x = c(
           "^C",
           "^T"
@@ -622,7 +621,18 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
 
   ## Function to construct the consensus matrices ##
 
-  construct_frequency_matrix <- function(blca_res_em, group_matrix) {
+  construct_frequency_matrix <- function(OR_matrix, blca_res_em, group_label) {
+    group_matrix <- OR_matrix[
+      grep(
+        pattern = group_label, # Group label corresponds to control or treated
+        x = rownames(OR_matrix)
+      ),
+    ]
+
+    # In the BLCA analysis, we only include genes that have a mutation in at
+    # least 3 populations
+    group_matrix <- group_matrix[, colSums(group_matrix) >= 3]
+
     blca_res_em <- blca_res_em %>%
       map(
         ~ .x %>%
@@ -686,9 +696,9 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
           n = 2
         )
         [rep(
-            x = 1,
-            length = length(local_res)
-          ), ]
+          x = 1,
+          length = length(local_res)
+        ), ]
       )
 
       local_clust <- local_clust %*% t(local_clust)
@@ -713,7 +723,18 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
 
   ## Hierarchical clustering and plotting function ##
 
-  plot_clusters <- function(freq_matrix, OR_matrix, group_label) {
+  plot_clusters <- function(OR_matrix, freq_matrix, group_label) {
+    group_matrix <- OR_matrix[
+      grep(
+        pattern = group_label, # Group label corresponds to control or treated
+        x = rownames(OR_matrix)
+      ),
+    ]
+
+    # In the BLCA analysis, we only include genes that have a mutation in at
+    # least 3 populations
+    group_matrix <- group_matrix[, colSums(group_matrix) >= 3]
+
     # Perform hierarchical clustering on the distance matrix
     dist_matrix <- as.dist(1.0 - freq_matrix)
 
@@ -782,7 +803,7 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
       col_fun_freq <- colorRamp2(
         breaks = seq(0, 1, 0.01),
         colors = colorRampPalette(
-          colors = c("white", "firebrick")
+          colors = c("white", "#606B91")
         )(
           length(
             seq(0, 1, 0.01)
@@ -829,13 +850,6 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
         )
       )
 
-      group_matrix <- OR_matrix[
-        grep(
-          pattern = group_label, # Group label corresponds to control or treated
-          x = rownames(OR_matrix)
-        ),
-      ]
-
       h_ae_mut <- Heatmap(
         group_matrix[
           match(
@@ -853,13 +867,7 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
         show_column_dend = FALSE,
         show_row_dend = FALSE,
         na_col = "white",
-        heatmap_legend_param = list(
-          title = "Genomic Profile",
-          title_position = "leftcenter-rot",
-          legend_height = unit(4, "cm"),
-          fontsize = 12
-        ),
-        show_heatmap_legend = TRUE,
+        show_heatmap_legend = FALSE,
         use_raster = FALSE,
         border = TRUE,
         row_names_gp = gpar(fontsize = 6),
@@ -911,22 +919,13 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
       treated_clusters
     ),
     .y = list(
-      regression_results[[2]][
-        grep(
-          pattern = "^C",
-          x = rownames(regression_results[[2]])
-        ),
-      ],
-      regression_results[[2]][
-        grep(
-          pattern = "^T",
-          x = rownames(regression_results[[2]])
-        ),
-      ]
+      "^C",
+      "^T"
     ),
     ~ construct_frequency_matrix(
+      OR_matrix = regression_results[[2]],
       blca_res_em = .x,
-      group_matrix = .y
+      group_label = .y
     )
   )
 
@@ -936,30 +935,13 @@ perform_regression_blca <- function(.x, iterations = 1000, num_clusters = 5) {
       group_freq_matrices[[2]]
     ),
     .y = list(
-      regression_results[[2]][
-        grep(
-          pattern = "^C",
-          x = rownames(regression_results[[2]])
-        ),
-      ],
-      regression_results[[2]][
-        grep(
-          pattern = "^T",
-          x = rownames(regression_results[[2]])
-        ),
-      ]
+      "^C",
+      "^T"
     ),
     ~ plot_clusters(
+      OR_matrix = regression_results[[2]],
       freq_matrix = .x,
-      OR_matrix = .y,
-      group_label = ifelse(
-        identical(
-          x = .x,
-          y = group_freq_matrices[[1]]
-        ),
-        "^C",
-        "^T"
-      )
+      group_label = .y
     )
   )
 
@@ -1289,7 +1271,7 @@ perform_MW_test <- function(.data, ab) {
 calculate_likelihood <- function(.x) {
   .x <- .x %>%
     filter(antibiotic != "VAN")
-  
+
   prob_vec <- c()
 
   # For each antibiotic in the summary_stats data frame, we calculate the
@@ -1361,7 +1343,7 @@ generate_CR_likelihood_plot <- function(.x, .y) {
     levels = as.factor(antibiotic_factor)
   )
 
-  .x  <- .x  %>%
+  .x <- .x %>%
     filter(antibiotic != "VAN")
 
   CR_boxplot <- .x %>%
