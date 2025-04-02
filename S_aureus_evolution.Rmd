@@ -1,35 +1,41 @@
 ---
-title: "The evolution of diverse antimicrobial responses in
-vancomycin-intermediate Staphylococcus aureus and its therapeutic implications"
+title: "Evolution under vancomycin selection drives divergent collateral
+sensitivity patterns in Staphylococcus aureus"
 author: Kyle Card and Arda Durmaz
-Date: 1/28/2025
+Date: 4/2/2025
 output: html_notebook
 ---
 
 ## Prerequisites - required packages and functions
 
 ```{r Packages, message = FALSE}
+# Data wrangling and plotting
 library(tidyverse)
+library(ggrepel)
+library(cowplot)
+library(ggridges)
 library(magick)
 library(pdftools)
 library(grid)
-library(cowplot)
-library(proxy)
-library(foreach)
-library(doParallel)
-library(MASS)
-library(glmnet)
-library(BayesLCA)
-library(Matrix)
-
-# Need to first (i.) install.packages("BiocManager), and then
-# (ii.) run BiocManager::install("ComplexHeatmap")
-library(ComplexHeatmap)
-
+library(ComplexHeatmap) # BiocManager::install("ComplexHeatmap")
 library(ggsci)
 library(RColorBrewer)
 library(circlize)
 library(ggnewscale)
+
+# Computes Dice's similarity coefficient
+library(proxy)
+
+# Parallel processing
+library(foreach)
+library(doParallel)
+
+# Logistic regression, BLCA, and bootstrapping
+library(MASS)
+library(glmnet)
+library(BayesLCA)
+library(Matrix)
+library(boot)
 ```
 
 ```{r Load functions}
@@ -44,7 +50,7 @@ options(dplyr.summarise.inform = FALSE)
 
 ***
 
-# Experimental evolution under vancomycin selection
+# Evolution of vancomycin-intermediate resistance in MSSA
 
 ```{r Vancomycin MIC data}
 # Data report the minimum inhibitory concentrations (MICs) of the 18
@@ -60,22 +66,9 @@ vancomycin_MICs
 <br>
 
 ```{r Generate Figure 1, warning = FALSE}
-figure_1 <- generate_vanc_plot(.x = vancomycin_MICs)
+figure_1 <- generate_figure_1(.x = vancomycin_MICs)
 
 figure_1
-```
-<br>
-
-```{r Save plot of vancomycin MIC data with experimental schema}
-ggsave(
-  filename = "figure_1.tiff",
-  plot = figure_1,
-  path = "Figures",
-  device = "tiff",
-  width = 12,
-  height = 8,
-  units = "in"
-)
 ```
 <br>
 
@@ -105,9 +98,9 @@ Conversely, we excluded mutations from further analyses if they were:
 gene conversions but cannot be fully resolved using short-read sequencing data.
 
 We also include all mutations that were at or above 5% frequency in the
-populations given that each population had an average read coverage depth of
->100X. A total of *227* mutations qualify based upon these criteria in the
-vancomycin-evolved lines and *3585* mutations qualify in the control lines.
+populations given that each population had an average read coverage depth
+exceeding 100X. A total of *227* mutations qualify based upon these criteria in
+the vancomycin-evolved lines and *3585* mutations qualify in the control lines.
 
 ```{r Reads in mutation data, messages = FALSE}
 mutations <- read_csv(
@@ -118,6 +111,11 @@ mutations <- read_csv(
 # Filter the mutations object by the presence of qualifying mutations.
 qualifying_mutations <- mutations %>%
   filter(qualifying_mutation == "yes")
+
+list(
+  all_mutations = mutations,
+  qualifying_mutations = qualifying_mutations
+)
 ```
 <br>
 
@@ -129,7 +127,7 @@ in each evolutionary replicate. We use this matrix for subsequent analyses.
 and the control lines. We then compare the average similarity between the two
 groups to determine if the vancomycin-adapted lines exhibit a higher degree of
 genomic parallelism than the control lines.
-3. Performs a bootstrap analysis to evaluate the statistical significance of
+3. Performs a permutation test to evaluate the statistical significance of
 the observed difference between the vancomycin-adapted and control lines.
 
 ```{r Generate binary matrix and perform genomic analyses}
@@ -156,8 +154,8 @@ By default, the perform_genomic_analysis function will output a list containing
 two elements:
 
 1. Average pairwise similarity within the vancomycin-treated group
-($\overline{S}_v \approx 0.0625$) and within the control group
-($\overline{S}_c \approx 0.0290$). In other words, two populations that
+($S_v \approx 0.0625$) and within the control group
+($S_c \approx 0.0290$). In other words, two populations that
 independently evolved under vancomycin selection had, on average, *6.25%* of
 their mutated genes in common, whereas those that evolved under identical
 conditions, but without vancomycin, shared on average only *2.90%* of their
@@ -180,56 +178,31 @@ head(similarity)
 ---
 
 To evaluate the statistical significance of the observed difference between
-the vancomycin-adapted and control lines, we generated a bootstrap distribution
-assuming no difference between the two groups. We pooled all data into one
-combined dataset, then repeatedly sampled (with replacement) two new subsets of
-the same sizes as the original groups. For each bootstrap iteration
-(10,000 total), we calculated the difference in mean similarities between the
-subsets. We then compared our observed difference to the distribution of
-differences generated by the bootstrap analysis. The *p*-value is the proportion
-of bootstrap iterations where the difference was greater than or equal to the
-observed difference.
+the vancomycin-adapted and control lines, we generated a distribution under the
+null hypothesis that there is no difference between the two groups. To achieve
+this distribution, we permuted the population labels by resampling without
+replacement 10,000 times. For each permutation, we calculated the difference
+in $S_v$ and $S_c$. We then compared our observed difference to the null
+distribution of differences. The *p*-value is the proportion of permutations
+where the difference was greater than or equal to the observed difference.
 
 ```{r Bootstrap results}
-bootstrap_data <- genomic_results$bootstrap_results
+genomic_permutation_data <- genomic_results$permutation_results
 significance <- genomic_results$significance
 
-bootstrap_results <- list(
-  ... = bootstrap_data,
+genomic_permutation_results <- list(
+  ... = genomic_permutation_data,
   ... = significance
 )
 
-names(bootstrap_results) <- c("Bootstrap data", "Significance")
+names(genomic_permutation_results) <- c("Permutation data", "Significance")
 
-head(bootstrap_results)
+head(genomic_permutation_results)
 ```
 <br>
 
-The bootstrap analysis showed that the vancomycin-adapted lines differ
-significantly in their genetic responses relative to the control lines.
-However, this analysis does not specify which genes are associated with each 
-treatment. To identify these genes, we perform a multivariate logistic
-regression with the treatment status (i.e., vancomycin or no vancomycin) as the
-outcome and the qualifying gene-level mutations as the predictors. We only
-include in our model qualifying mutations that occur in at least three
-populations resulting in 446 gene-level mutations. Because there are only
-18 outcome events (i.e., populations that evolved under vancomycin selection)
-and 446 predictors, we use L1 penalization on model coefficients to avoid
-overfitting. We also performed a Bayesian latent class analysis (BLCA) to group
-lines based on their mutation profiles. 
-
-```{r Logistic regression and plot of mean model coefficients, message = FALSE}
-regression_blca_results <- perform_regression_blca(.x = binary_matrix)
-
-regression_summary <- regression_blca_results[[1]]
-OR_matrix <- regression_blca_results[[2]]
-```
-<br>
-
-**Plots**
-
-```{r Plot the bootstrap distribution of differences}
-figure_S1 <- bootstrap_data %>%
+```{r Plot the permuted distribution of differences}
+figure_S1 <- genomic_permutation_data %>%
   ggplot(
     aes(x = difference)
   ) +
@@ -242,25 +215,18 @@ figure_S1 <- bootstrap_data %>%
     linetype = "dashed",
     color = "#000000"
   ) +
-  scale_y_continuous(breaks = seq(0, 600, 100)) +
   annotate(
     geom = "text",
-    x = similarity[[2]]$difference + 0.012,
-    y = 550,
+    x = similarity[[2]]$difference - 0.01,
+    y = 850,
     label = "Observed difference",
     color = "#000000"
   ) +
   annotate(
     geom = "text",
-    x = similarity[[2]]$difference + 0.012,
-    y = 500,
-    label = paste(
-      "p =",
-      round(
-        x = significance,
-        digits = 4
-      )
-    ),
+    x = similarity[[2]]$difference - 0.01,
+    y = 800,
+    label = "P < 0.0001",
     color = "#000000"
   ) +
   xlab("Difference in mean similarity") +
@@ -275,48 +241,133 @@ figure_S1
 ```
 <br>
 
-```{r Plot of avg odds ratios from the logistic regression and mutation heatmap}
-figure_2 <- generate_OR_heatmap_plot(
+The permutation test showed that the vancomycin-adapted lines differ
+significantly in genomic parallelism relative to the control lines.
+However, this analysis does not specify which genes are associated with 
+vancomycin selection. To identify these genes, we perform multivariate logistic
+regression with the treatment status (i.e., vancomycin or no vancomycin) as the
+outcome and qualifying gene-level mutations as the predictors. We only
+include in our model qualifying mutations that occur in at least three
+populations resulting in 446 gene-level mutations. Because there are only
+18 outcome events (i.e., populations that evolved under vancomycin selection)
+and 446 predictors, we use L1 and L2 penalization on model coefficients to avoid
+overfitting.
+
+We perform this procedure in two steps. First, we determine the number of
+iterations needed to achieve convergence of the model coefficient estimates.
+Second, we run the logistic regression model with the updated number of
+iterations.
+
+```{r Logistic regression, message = FALSE}
+regression_and_plots <- perform_regression_and_plots(.x = binary_matrix)
+
+regression_summary <- regression_and_plots[[1]][[1]]
+OR_matrix <- regression_and_plots[[1]][[2]]
+
+# Plots
+convergence_plots <- regression_and_plots[[2]]
+
+list(
+  convergence_plots = convergence_plots,
+  regression_summary = regression_summary
+)
+```
+<br>
+
+```{r Plot of mutation heatmap}
+figure_2A <- mutations %>%
+  ggplot(
+    aes(x = fct_infreq(mutation_type))
+  ) +
+  geom_bar() +
+  xlab("Mutation type") +
+  ylab("Count") +
+  scale_x_discrete(limits = rev) +
+  theme_cowplot() +
+  theme(
+    plot.background = element_rect(fill = "white"),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
+  ) +
+  coord_flip()
+
+figure_2B <- generate_OR_plot(
   .x = regression_summary,
   .y = OR_matrix
 )
 
-figure_2
-```
-<br>
+figure_2C <- generate_heatmap_plot(
+  .x = regression_summary,
+  .y = OR_matrix
+)
 
-```{r Save bootstrap plot}
-ggsave(
-  filename = "figure_S1.tiff",
-  plot = figure_S1,
-  path = "Figures",
-  device = "tiff",
-  width = 10,
-  height = 8,
-  units = "in"
+list(
+  ... = figure_2A,
+  ... = figure_2B,
+  ... = figure_2C
 )
 ```
 <br>
 
+We then perform a Bayesian latent class analysis (BLCA) to group
+lines based on their mutation profiles
+```{r }
+perform_blca(
+  .x = regression_and_plots,
+  iterations = 1000
+)
 
-```{r Save mutation heat map}
-ggsave(
-  filename = "figure_2.tiff",
-  figure_2,
-  path = "Figures",
-  device = "tiff",
-  width = 22,
-  height = 5,
-  units = "in"
+# The best number of clusters was 2 based on AIC
+figure_S2_pdf <- image_read_pdf(
+  "Figures/cluster_plots/CC_Genomic_AIC_treatedOnly_K2.pdf",
+  density = 300
+)
+
+figure_S2_rasterized <- rasterGrob(
+  as.raster(figure_S2_pdf),
+  interpolate = TRUE
+)
+
+# Convert figure_4 to ggplot object
+figure_S2 <- ggplot() +
+  annotation_custom(grob = figure_S2_rasterized) +
+  theme_void()
+
+figure_S2
+```
+<br>
+
+The latent class analysis (LCA) showed that the 18 VISA populations clustered
+into two distinct groups based on shared gene-level mutations. For instance,
+Cluster 1 was uniquely characterized by mutations in *rpsU* while notably
+lacking mutations in *yycH*. This mutual exclusivity was nonsignificant by
+Fisher's exact test (*P* = 0.0537). However, grouping of lines by the
+functional level shows near complete mutual exclusivity of *rpsU* and WalKR
+regulon mutations (Fisher's exact test, *P* = 0.0374)
+
+```{r Fisher exact test}
+# Contingency table for yycH versus rpsU
+yycH_versus_rpsU <- matrix(c(0, 6, 6, 6), nrow = 2, byrow = TRUE)
+rownames(yycH_versus_rpsU) <- c("rpsU_Present", "rpsU_Absent")
+colnames(yycH_versus_rpsU) <- c("yycH_Present", "yycH_Absent")
+
+# Contingency table for WalKR regulon versus rpsU
+regulon_versus_rpsU <- matrix(c(2, 4, 12, 0), nrow = 2, byrow = TRUE)
+rownames(regulon_versus_rpsU) <- c("rpsU_Present", "rpsU_Absent")
+colnames(regulon_versus_rpsU) <- c("regulon_Present", "regulon_Absent")
+
+list(
+  ... = fisher.test(yycH_versus_rpsU),
+  ... = fisher.test(regulon_versus_rpsU)
 )
 ```
 <br>
 
 ***
 
-# Collateral responses analysis
-
-Load data
+# S. aureus populations exhibit variable collateral sensitivity to first-line therapies after vancomycin exposure
 
 ```{r Collateral drug MIC data}
 # Data report the MICs of 8 antibiotics -- cefazolin, clindamycin, daptomycin,
@@ -331,17 +382,66 @@ collateral_MICs <- read_csv(
 ```
 <br>
 
-```{r Estimate collateral response values, messages = FALSE}
+```{r Perform analyses on collateral response data, messages = FALSE}
+# Calculates collateral responses
 collateral_responses <- calculate_collateral_responses(.x = collateral_MICs)
 
-head(collateral_responses)
+# Calculates summary statistics
+CR_summary_stats <- perform_summary_stats(.x = collateral_responses)
+
+list(
+  collateral_responses = collateral_responses,
+  collateral_responses_summary = CR_summary_stats
+)
 ```
 <br>
 
-```{r Calculate summary statistics of CR values, messages = FALSE}
-CR_summary_stats <- perform_summary_stats(.x = collateral_responses)
+```{r Plot collateral response values}
+figure_3B <- CR_summary_stats %>%
+  ggplot(
+    aes(
+      y = population,
+      x = antibiotic,
+      fill = mean_CR
+    )
+  ) +
+  geom_tile(color = "black") +
+  scale_fill_gradient2(
+    low = "#1a4891",
+    mid = "white",
+    high = "#a01415",
+    midpoint = 0
+  ) +
+  scale_y_discrete(
+    limits = rev(
+      factor(
+        seq(1, 18, 1)
+      )
+    )
+  ) +
+  scale_x_discrete(
+    limits =
+      factor(
+        c("DAP", "VAN", "CFZ", "SXT", "CLI", "MEM", "NAF", "GEN")
+      ),
+      position = "top"
+  ) +
+  ylab("Population") +
+  xlab("Antibiotic") +
+  theme_cowplot() +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.ticks = element_blank(),
+    plot.background = element_rect(fill = "white"),
+    panel.background = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank()
+  )
 
-head(CR_summary_stats)
+figure_3C <- generate_CR_plot(
+  .x = CR_summary_stats
+)
 ```
 <br>
 
@@ -360,47 +460,172 @@ mw_stats <- map(
 names(mw_stats) <- unique(collateral_MICs$antibiotic)
 
 list(mw_stats)
+
+# Extract p-values from the mw_stats object and put into a dataframe
+mw_pvals <- c()
+for (i in 1:length(mw_stats)) {
+  mw_pvals <- rbind(
+    mw_pvals,
+    data.frame(
+      antibiotic = names(mw_stats)[i],
+      p_value = mw_stats[[i]]$p.value
+    )
+  )
+}
+
+mw_p_adjusted <- p.adjust(
+  p = mw_pvals$p_value,
+  method = "BH"
+)
+
+names(mw_p_adjusted) <- mw_pvals$antibiotic
+
+mw_p_adjusted
 ```
 <br>
 
-We estimate the populations' probability of exhibiting a partiular drug response
-following empiric treatment. We computed this estimate for each antibiotic by
-comparing the MIC measurements of the evolved populations to the median MIC.
+We can combine the collateral response and genomic data obtained from each
+population to evaluate whether genomic differences that evolved during
+vancomycin adaptation shape drug tradeoffs.
 
-```{r Calculate population probability of exhibiting a drug response}
-likelihood_df <- calculate_likelihood(CR_summary_stats)
+```{r Biserial correlation with WalKR regulon mutated lines}
+biserial_results <- perform_biserial_correlation(.data = CR_summary_stats)
 
-head(likelihood_df)
+
+regulon_p_adjusted <- p.adjust(
+  p = map_dbl(biserial_results$regulon_results, ~ .x$p.value),
+  method = "BH"
+)
+
+rpsU_p_adjusted <- p.adjust(
+  p = map_dbl(biserial_results$rpsU_results, ~ .x$p.value),
+  method = "BH"
+)
+
+list(
+  biserial_results = biserial_results,
+  regulon_p_adjusted = regulon_p_adjusted,
+  yycHI_p = biserial_results$yycHI_results$NAF$p.value,
+  rpsU_p_adjusted = rpsU_p_adjusted
+)
 ```
 <br>
 
-```{r Plot collateral response values}
-figure_4 <- generate_CR_likelihood_plot(
+```{r Regulon plot}
+figure_3D <- CR_summary_stats %>%
+  filter(antibiotic %in% c("CFZ", "MEM", "NAF", "GEN")) %>%
+  # Remove populations that have both regulon and rpsU mutations
+  filter(!population %in% c(1, 2)) %>% 
+  mutate(
+    regulon = ifelse(
+      population %in% c(4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18),
+      "1",
+      "0"
+    )
+  ) %>%
+  ggplot(
+    aes(
+      x = antibiotic,
+      y = mean_CR,
+      fill = regulon
+    )
+  ) +
+  geom_boxplot(outlier.shape = 1) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "#000000"
+  ) +
+  xlab("Antibiotic") +
+  ylab(
+    expression(
+      "Log"[2] ~ "-" ~ "relative MIC"
+    )
+  ) +
+  scale_fill_manual(
+    labels = c("rpsU mutations", "Regulon mutations"),
+    values = c("#FFFFFF", "#C2C2C2")
+  ) +
+  theme_cowplot() +
+  theme(
+    legend.position = "bottom",
+    plot.background = element_rect(fill = "white"),
+    legend.title = element_blank()
+  )
+
+figure_3D
+```
+<br>
+
+```{r yycH plot}
+figure_3E <- CR_summary_stats %>%
+  filter(antibiotic == "NAF") %>%
+  mutate(
+    mutation = ifelse(
+      population %in% c(4, 5, 6, 7, 9, 16, 18),
+      "1",
+      "0"
+    )
+  ) %>%
+  ggplot(
+    aes(
+      x = antibiotic,
+      y = mean_CR,
+      fill = mutation
+    )
+  ) +
+  geom_boxplot(outlier.shape = 1) +
+  geom_hline(
+    yintercept = 0,
+    linetype = "dashed",
+    color = "#000000"
+  ) +
+  xlab("Antibiotic") +
+  ylab(
+    expression(
+      "Log"[2] ~ "-" ~ "relative MIC"
+    )
+  ) +
+  scale_fill_manual(
+    labels = c("No yycHI mutations", "yycHI mutations"),
+    values = c("#FFFFFF", "#C2C2C2")
+  ) +
+  theme_cowplot() +
+  theme(
+    legend.position = "bottom",
+    plot.background = element_rect(fill = "white"),
+    legend.title = element_blank(),
+    axis.title.x = element_blank()
+  )
+
+figure_3E
+
+
+```
+<br>
+
+Now, we first estimate the bootstrap distribution of collateral response
+scores (CRS) for each antibiotic and mutational pathway. The CSS metric
+evaluates the net collateral effect of antibiotic exposure by integrating both
+the magnitude and direction of changes in MIC, providing a robust metric for
+evaluating the likelihood of collateral sensitivity or resistance. This score
+is amenable to statistical investigation and provides a standardized way of
+reporting this information for clinical decision-making. The CSS is defined as,
+
+$$\text{CSS} = \frac{\frac{1}{N} \sum_{i=1}^{N} \log_2\left
+(\frac{\mathrm{MIC}_{i,\text{evolved}}}{\mathrm{MIC}_
+{i,\text{ancestor}}}\right)}{\max_{1 \leq i \leq N} \left|\log_2\left
+(\frac{\mathrm{MIC}_{i,\text{evolved}}}{\mathrm{MIC}_
+{i,\text{ancestor}}}\right)\right|}$$
+
+where *N* is the number of replicate populations, *i*.
+
+```{r Compute CSS distributions}
+css_bootstrap_results <- perform_bootstrap_and_plot_css(
   .x = CR_summary_stats,
-  .y = likelihood_df
+  iterations = 100
 )
 
-figure_4
-```
-<br>
-
-```{r Plot association between cluster assignment and CR values}
-figure_5 <- generate_CR_cluster_plot(
-  .x = CR_summary_stats
-)
-
-figure_5
-```
-
-```{r Save plot of probability of drug response}
-ggsave(
-  filename = "figure_4.tiff",
-  plot = figure_4,
-  path = "Figures",
-  device = "tiff",
-  width = 16,
-  height = 8,
-  units = "in"
-)
+css_bootstrap_results
 ```
 <br>
