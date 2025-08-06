@@ -248,7 +248,7 @@
 247,T18,158,8,34,0.0004,591.5,14.2,NA,TRUE,TRUE,RA,1,"339,748",Nonsynonymous,G -> A,0.05,V77I (GTA -> ATA) ,LNEJMEBC_00340,hypothetical protein
 248,T18,122,7,34,0.0004,464.3,14.6,NA,FALSE,TRUE,RA,1,"392,465",Synonymous,G -> T,0.056,I40I (ATC -> ATA) ,LNEJMEBC_00390,hypothetical protein
 249,T18,176,24,34,0.0004,538.4,70.8,NA,TRUE,TRUE,RA,1,"420,959",Nonsense,C -> T,0.136,Q55* (CAA -> TAA) ,era,GTPase Era
-250,T18,150,10,34,0.0004,564.5,21.5,NA,FALSE,TRUE,RA,1,"576,799",Synonymous,A -> G,0.067,Q6914Q (CAA -> CAG) ,ebh,Extracellular matrix-binding protein ebh
+250,T18,150,10,34,0.0004,564.5,21.5,repeat regions,FALSE,TRUE,RA,1,"576,799",Synonymous,A -> G,0.067,Q6914Q (CAA -> CAG) ,ebh,Extracellular matrix-binding protein ebh
 251,T18,133,21,34,0.0004,443.5,67,NA,TRUE,TRUE,RA,1,"596,686",Nonsynonymous,G -> T,0.157,W70C (TGG -> TGT) ,yozE,YozE family protein
 252,T18,113,6,34,0.0004,443.7,10,NA,TRUE,TRUE,RA,1,"884,689",Nonsynonymous,T -> C,0.053,V112A (GTA -> GCA) ,hly,Alpha‑hemolysin
 253,T18,169,10,34,0.0004,624,22.1,NA,FALSE,TRUE,RA,1,"934,348",Synonymous,C -> T,0.059,G201G (GGG -> GGA) ,ftsW,putative peptidoglycan glycosyltransferase FtsW
@@ -362,7 +362,7 @@
 361,C3,16,4,40,0.0001,29.9,7.4,NA,FALSE,FALSE,RA,1,"243,860",Intergenic,T -> C,0.25,intergenic (+155/-539),LNEJMEBC_00264  /  aroA_1,hypothetical protein/Protein AroA(G)
 362,C3,29,4,40,0.0001,71.4,6.8,NA,TRUE,FALSE,RA,1,"297,893",Nonsynonymous,C -> T,0.139,A134V (GCG -> GTG) ,citZ,Citrate synthase 2
 363,C3,24,4,40,0.0001,69.5,4.4,NA,TRUE,FALSE,RA,1,"491,357",Nonsense,C -> A,0.166,S105* (TCA -> TAA) ,srrA,Transcriptional regulatory protein SrrA
-364,C3,23,4,40,0.0001,55.2,5.9,NA,FALSE,FALSE,RA,1,"567,043",Synonymous,G -> A,0.174,T3662T (ACG -> ACA) ,ebh,Extracellular matrix-binding protein ebh
+364,C3,23,4,40,0.0001,55.2,5.9,repeat regions,FALSE,FALSE,RA,1,"567,043",Synonymous,G -> A,0.174,T3662T (ACG -> ACA) ,ebh,Extracellular matrix-binding protein ebh
 365,C3,20,4,40,0.0001,40.1,6.8,NA,TRUE,FALSE,RA,1,"599,742",Nonsense,G -> T,0.201,E148* (GAA -> TAA) ,murG,UDP‑N‑acetylglucosamine‑‑N‑acetylmuramyl‑ (pentapeptide) pyrophosphoryl‑undecaprenol N‑acetylglucosamine transferase
 366,C3,18,4,40,0.0001,38.8,6.4,NA,TRUE,FALSE,RA,1,"676,285",Nonsynonymous,C -> A,0.222,W162L (TGG -> TTG) ,acnA,Aconitate hydratase A
 367,C3,22,4,40,0.0001,52.1,6.6,NA,TRUE,FALSE,RA,1,"732,893",Nonsynonymous,C -> A,0.183,E674D (GAG -> GAT) ,mutS_1,DNA mismatch repair protein MutS
@@ -402,7 +402,7 @@
 401,C4,55,4,40,0.0001,184.4,4.9,NA,TRUE,FALSE,RA,1,"427,941",Nonsynonymous,G -> T,0.073,G30V (GGT -> GTT) ,sigA,RNA polymerase sigma factor SigA
 402,C4,61,4,40,0.0001,230.9,4.7,NA,TRUE,FALSE,RA,1,"436,104",Nonsynonymous,C -> A,0.065,A129D (GCT -> GAT) ,sodA,Superoxide dismutase [Mn] 1
 403,C4,47,4,40,0.0001,144,6,NA,FALSE,FALSE,RA,1,"487,138",Synonymous,C -> T,0.085,H95H (CAC -> CAT) ,fur,Ferric uptake regulation protein
-404,C4,66,4,40,0.0001,253.4,4.5,NA,TRUE,FALSE,RA,1,"572,997",Nonsynonymous,C -> A,0.061,A5647E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
+404,C4,66,4,40,0.0001,253.4,4.5,repeat regions,FALSE,FALSE,RA,1,"572,997",Nonsynonymous,C -> A,0.061,A5647E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
 405,C4,42,4,40,0.0001,135,4.7,NA,TRUE,FALSE,RA,1,"608,969",Nonsynonymous,C -> A,0.096,D75E (GAC -> GAA) ,mhqA_1,Putative ring‑cleaving dioxygenase MhqA
 406,C4,44,4,40,0.0001,149.6,5.3,NA,TRUE,FALSE,RA,1,"615,804",Nonsense,G -> T,0.091,S96* (TCA -> TAA) ,LNEJMEBC_00583,hypothetical protein
 407,C4,83,5,40,0.0001,306.7,5.3,NA,TRUE,FALSE,RA,1,"648,937",Nonsynonymous,C -> A,0.06,V59L (GTA -> TTA) ,trpB,Tryptophan synthase beta chain
@@ -448,7 +448,7 @@
 447,C5,30,4,40,0.0001,80.8,7.5,NA,TRUE,FALSE,RA,1,"201,125",Nonsense,G -> A,0.133,W72* (TGG -> TAG) ,LNEJMEBC_00233,hypothetical protein
 448,C5,25,4,40,0.0001,68.7,5.6,NA,TRUE,FALSE,RA,1,"257,454",Nonsynonymous,G -> T,0.16,W11L (TGG -> TTG) ,tyrS,Tyrosine‑‑tRNA ligase
 449,C5,28,4,40,0.0001,84,3.5,NA,TRUE,FALSE,RA,1,"395,819",Nonsense,G -> T,0.138,E192* (GAA -> TAA) ,aroE,Shikimate dehydrogenase (NADP(+))
-450,C5,32,4,40,0.0001,92.4,5.8,NA,TRUE,FALSE,RA,1,"574,661",Nonsynonymous,G -> T,0.125,A6202S (GCG -> TCG) ,ebh,Extracellular matrix-binding protein ebh
+450,C5,32,4,40,0.0001,92.4,5.8,repeat regions,FALSE,FALSE,RA,1,"574,661",Nonsynonymous,G -> T,0.125,A6202S (GCG -> TCG) ,ebh,Extracellular matrix-binding protein ebh
 451,C5,33,4,40,0.0001,105,5.7,NA,TRUE,FALSE,RA,1,"654,233",Nonsynonymous,G -> T,0.121,P262T (CCA -> ACA) ,ysdC_1,Putative aminopeptidase YsdC
 452,C5,44,4,40,0.0001,149.8,5.2,NA,TRUE,FALSE,RA,1,"657,896",Nonsynonymous,C -> A,0.091,D27E (GAC -> GAA) ,LNEJMEBC_00624,putative tautomerase.1
 453,C5,28,4,40,0.0001,83.8,6,NA,TRUE,FALSE,RA,1,"822,513",Nonsynonymous,C -> A,0.143,Q327H (CAG -> CAT) ,prkC,Serine/threonine‑protein kinase PrkC
@@ -521,7 +521,7 @@
 520,C7,38,4,40,0.0001,126,4.9,NA,TRUE,FALSE,RA,1,"285,980",Nonsynonymous,C -> A,0.105,H145N (CAT -> AAT) ,dnaE,DNA polymerase III subunit alpha
 521,C7,41,5,40,0.0001,117.9,5.6,NA,TRUE,FALSE,RA,1,"484,417",Nonsynonymous,G -> T,0.112,G146W (GGG -> TGG) ,LNEJMEBC_00487,putative oxidoreductase
 522,C7,59,4,40,0.0001,195,6.4,NA,TRUE,FALSE,RA,1,"508,993",Nonsynonymous,T -> G,0.068,K182T (AAG -> ACG) ,ansA,putative L‑asparaginase
-523,C7,67,4,40,0.0001,255.6,3.8,NA,TRUE,FALSE,RA,1,"563,813",Nonsynonymous,G -> T,0.06,A2586S (GCA -> TCA) ,ebh,Extracellular matrix-binding protein ebh
+523,C7,67,4,40,0.0001,255.6,3.8,repeat regions,FALSE,FALSE,RA,1,"563,813",Nonsynonymous,G -> T,0.06,A2586S (GCA -> TCA) ,ebh,Extracellular matrix-binding protein ebh
 524,C7,39,4,40,0.0001,125.1,4.8,NA,TRUE,FALSE,RA,1,"609,025",Nonsynonymous,C -> A,0.102,T94K (ACA -> AAA) ,mhqA_1,Putative ring‑cleaving dioxygenase MhqA
 525,C7,39,4,40,0.0001,129.8,5.4,NA,TRUE,FALSE,RA,1,"656,458",Nonsynonymous,G -> T,0.102,A405E (GCA -> GAA) ,umuC,Protein UmuC
 526,C7,44,4,32,0.0006,137.4,3.4,NA,FALSE,FALSE,RA,1,"670,285",Synonymous,G -> A,0.091,I480I (ATC -> ATT) ,parE,DNA topoisomerase 4 subunit B
@@ -581,7 +581,7 @@
 580,C8,57,6,40,0.0001,171.5,12.5,NA,TRUE,FALSE,RA,1,"137,108",Nonsynonymous,G -> A,0.105,S222N (AGT -> AAT) ,yhaM,3'‑5' exoribonuclease YhaM
 581,C8,50,4,40,0.0001,175.7,7.6,NA,TRUE,FALSE,RA,1,"171,425",Nonsynonymous,G -> C,0.08,D317H (GAT -> CAT) ,LNEJMEBC_00199,putative type I restriction enzymeP M protein
 582,C8,62,4,40,0.0001,229.6,4.1,NA,TRUE,FALSE,RA,1,"295,017",Nonsynonymous,G -> T,0.064,G447C (GGT -> TGT) ,pyk,Pyruvate kinase
-583,C8,56,4,40,0.0001,205.3,4.3,NA,TRUE,FALSE,RA,1,"564,719",Nonsynonymous,G -> T,0.071,A2888S (GCA -> TCA) ,ebh,Extracellular matrix-binding protein ebh
+583,C8,56,4,40,0.0001,205.3,4.3,repeat regions,FALSE,FALSE,RA,1,"564,719",Nonsynonymous,G -> T,0.071,A2888S (GCA -> TCA) ,ebh,Extracellular matrix-binding protein ebh
 584,C8,71,4,40,0.0001,272.4,3.9,NA,TRUE,FALSE,RA,1,"619,630",Nonsynonymous,C -> A,0.056,A259S (GCC -> TCC) ,alr1_1,Alanine racemase 1
 585,C8,47,4,40,0.0001,161.4,5.3,NA,TRUE,FALSE,RA,1,"729,217",Nonsynonymous,G -> T,0.085,A12E (GCA -> GAA) ,glpF,Glycerol uptake facilitator protein
 586,C8,77,4,40,0.0001,244.1,5.8,NA,TRUE,FALSE,RA,1,"894,688",Nonsynonymous,C -> T,0.052,V567I (GTC -> ATC) ,frdA,Fumarate reductase flavoprotein subunit
@@ -608,7 +608,7 @@
 607,C9,72,4,40,0.0001,107.3,6,NA,FALSE,FALSE,RA,1,"224,944",Synonymous,T -> C,0.055,T300T (ACT -> ACC) ,murJ,Lipid II flippase MurJ
 608,C9,31,4,40,0.0001,261.9,4.4,NA,FALSE,FALSE,RA,1,"414,828",Synonymous,G -> T,0.129,L326L (CTG -> CTT) ,mtaB,Threonylcarbamoyladenosine tRNA methylthiotransferase MtaB
 609,C9,37,4,40,0.0001,85.6,5.9,NA,FALSE,FALSE,RA,1,"534,944",Synonymous,A -> G,0.108,S57S (TCA -> TCG) ,dnaD,DNA replication protein DnaD
-610,C9,50,4,40,0.0001,118,5.7,NA,FALSE,FALSE,RA,1,"561,598",Synonymous,C -> T,0.08,D1847D (GAC -> GAT) ,ebh,Extracellular matrix-binding protein ebh
+610,C9,50,4,40,0.0001,118,5.7,repeat regions,FALSE,FALSE,RA,1,"561,598",Synonymous,C -> T,0.08,D1847D (GAC -> GAT) ,ebh,Extracellular matrix-binding protein ebh
 611,C9,37,4,40,0.0001,157.6,5.9,NA,TRUE,FALSE,RA,1,"589,745",Intergenic,C -> A,0.108,intergenic (-50/-401),LNEJMEBC_00557,hypothetical protein
 612,C9,41,4,40,0.0001,121.6,5.6,NA,TRUE,FALSE,RA,1,"591,971",Nonsynonymous,G -> T,0.097,A133S (GCA -> TCA) ,LNEJMEBC_00560,hypothetical protein
 613,C9,41,4,40,0.0001,139.1,5.4,NA,FALSE,FALSE,RA,1,"729,762",Synonymous,C -> A,0.096,A166A (GCG -> GCT) ,glpP,Glycerol uptake operon antiterminator regulatory protein
@@ -708,8 +708,8 @@
 707,C11,52,52,40,0.0001,198.4,NA,tandem repeat,FALSE,FALSE,RA,1,"396,807",Synonymous,T -> C,1,D153D (GAT -> GAC) ,nadD,putative nicotinate‑nucleotide adenylyltransferase
 708,C11,42,4,40,0.0001,122.8,6.2,NA,TRUE,FALSE,RA,1,"524,187",Nonsynonymous,G -> A,0.096,E65K (GAA -> AAA) ,LNEJMEBC_00527,hypothetical protein
 709,C11,79,4,40,0.0001,279.5,5,NA,TRUE,FALSE,RA,1,"554,725",Nonsynonymous,G -> A,0.051,V153I (GTT -> ATT) ,norB_1,Quinolone resistance protein NorB
-710,C11,67,4,40,0.0001,240.7,4.8,NA,FALSE,FALSE,RA,1,"563,050",Synonymous,T -> C,0.06,T2331T (ACT -> ACC) ,ebh,Extracellular matrix-binding protein ebh
-711,C11,60,4,40,0.0001,200.2,6,NA,TRUE,FALSE,RA,1,"577,614",Nonsynonymous,C -> T,0.067,A7186V (GCG -> GTG) ,ebh,Extracellular matrix-binding protein ebh
+710,C11,67,4,40,0.0001,240.7,4.8,repeat regions,FALSE,FALSE,RA,1,"563,050",Synonymous,T -> C,0.06,T2331T (ACT -> ACC) ,ebh,Extracellular matrix-binding protein ebh
+711,C11,60,4,40,0.0001,200.2,6,repeat regions,FALSE,FALSE,RA,1,"577,614",Nonsynonymous,C -> T,0.067,A7186V (GCG -> GTG) ,ebh,Extracellular matrix-binding protein ebh
 712,C11,47,4,40,0.0001,153,4.5,NA,TRUE,FALSE,RA,1,"710,424",Intergenic,G -> T,0.086,intergenic (-258/-12),ltaE,Low specificity L‑threonine aldolase
 713,C11,54,4,40,0.0001,177.7,6.1,NA,FALSE,FALSE,RA,1,"738,925",Synonymous,C -> T,0.074,G36G (GGG -> GGA) ,LNEJMEBC_00697,hypothetical protein
 714,C11,62,4,40,0.0001,226.2,4.6,NA,TRUE,FALSE,RA,1,"752,032",Nonsynonymous,G -> T,0.064,P31T (CCT -> ACT) ,LNEJMEBC_00709,hypothetical protein
@@ -782,7 +782,7 @@
 781,C12,55,6,40,0.0001,179.2,9.9,NA,FALSE,FALSE,RA,1,"504,862",Synonymous,A -> G,0.109,R263R (CGA -> CGG) ,recQ_1,ATP‑dependent DNA helicase RecQ
 782,C12,55,4,40,0.0001,195.4,4.2,NA,TRUE,FALSE,RA,1,"518,544",Intergenic,G -> T,0.073,intergenic (+161/-48),LNEJMEBC_00522,hypothetical protein
 783,C12,59,4,40,0.0001,201.5,4.9,NA,TRUE,FALSE,RA,1,"522,623",Nonsynonymous,A -> G,0.068,M394V (ATG -> GTG) ,aroA_2,3‑phosphoshikimate 1‑carboxyvinyltransferase
-784,C12,55,4,40,0.0001,185.9,6.1,NA,TRUE,FALSE,RA,1,"564,825",Nonsynonymous,C -> T,0.073,A2923V (GCG -> GTG) ,ebh,Extracellular matrix-binding protein ebh
+784,C12,55,4,40,0.0001,185.9,6.1,repeat regions,FALSE,FALSE,RA,1,"564,825",Nonsynonymous,C -> T,0.073,A2923V (GCG -> GTG) ,ebh,Extracellular matrix-binding protein ebh
 785,C12,68,4,40,0.0001,260.5,4.2,NA,TRUE,FALSE,RA,1,"649,444",Nonsense,G -> T,0.059,S99* (TCA -> TAA) ,trpF,N‑(5'‑phosphoribosyl)anthranilate isomerase
 786,C12,46,4,40,0.0001,144.6,5.9,NA,FALSE,FALSE,RA,1,"774,858",Synonymous,G -> A,0.087,D160D (GAC -> GAT) ,LNEJMEBC_00725,Putative zinc metalloprotease
 787,C12,49,4,32,0.0006,176.2,2.3,NA,TRUE,FALSE,RA,1,"776,489",Nonsynonymous,C -> A,0.08,R207I (AGA -> ATA) ,uppS,Isoprenyl transferase
@@ -833,7 +833,7 @@
 832,C13,54,4,40,0.0001,196.5,4.8,NA,TRUE,FALSE,RA,1,"444,332",Nonsynonymous,C -> A,0.074,Q74K (CAA -> AAA) ,LNEJMEBC_00445,hypothetical protein
 833,C13,75,4,40,0.0001,282.6,4.2,NA,FALSE,FALSE,RA,1,"458,257",Synonymous,C -> A,0.053,G38G (GGC -> GGA) ,LNEJMEBC_00462,hypothetical protein
 834,C13,70,4,40,0.0001,252.9,4.6,NA,TRUE,FALSE,RA,1,"518,016",Nonsynonymous,A -> G,0.057,K28R (AAA -> AGA) ,ndk,Nucleoside diphosphate kinase
-835,C13,49,4,40,0.0001,171.3,4.4,NA,TRUE,FALSE,RA,1,"587,711",Nonsynonymous,C -> A,0.082,H10552N (CAT -> AAT) ,ebh,Extracellular matrix-binding protein ebh
+835,C13,49,4,40,0.0001,171.3,4.4,repeat regions,FALSE,FALSE,RA,1,"587,711",Nonsynonymous,C -> A,0.082,H10552N (CAT -> AAT) ,ebh,Extracellular matrix-binding protein ebh
 836,C13,65,11,40,0.0001,194.2,38.9,NA,TRUE,FALSE,RA,1,"602,163",Nonsynonymous,T -> A,0.169,I125N (ATC -> AAC) ,arlR,Response regulator ArlR
 837,C13,74,4,40,0.0001,269.6,4.7,NA,TRUE,FALSE,RA,1,"654,305",Nonsynonymous,T -> C,0.054,M238V (ATG -> GTG) ,ysdC_1,Putative aminopeptidase YsdC
 838,C13,66,20,40,0.0001,102.1,60.7,NA,TRUE,FALSE,RA,1,"658,190",Nonsynonymous,A -> G,0.303,S296P (TCA -> CCA) ,msrR,Regulatory protein MsrR
@@ -961,7 +961,7 @@
 960,C16,73,4,40,0.0001,279.2,4.5,NA,FALSE,FALSE,RA,1,"475,448",Intergenic,G -> T,0.055,intergenic (+137/-330),entS  /  LNEJMEBC_00480,Enterobactin exporter EntS/hypothetical protein
 961,C16,73,4,40,0.0001,280.5,3.9,NA,TRUE,FALSE,RA,1,"513,654",Nonsynonymous,G -> T,0.055,G425C (GGT -> TGT) ,der_1,GTPase Der
 962,C16,62,4,40,0.0001,228.8,4.2,NA,TRUE,FALSE,RA,1,"516,051",Nonsynonymous,G -> T,0.064,M157I (ATG -> ATT) ,LNEJMEBC_00518,hypothetical protein
-963,C16,75,4,40,0.0001,286.2,4.5,NA,TRUE,FALSE,RA,1,"575,179",Nonsynonymous,C -> A,0.053,N6374K (AAC -> AAA) ,ebh,Extracellular matrix-binding protein ebh
+963,C16,75,4,40,0.0001,286.2,4.5,repeat regions,FALSE,FALSE,RA,1,"575,179",Nonsynonymous,C -> A,0.053,N6374K (AAC -> AAA) ,ebh,Extracellular matrix-binding protein ebh
 964,C16,69,4,40,0.0001,247.4,9,NA,TRUE,FALSE,RA,1,"685,001",Nonsynonymous,T -> A,0.059,L31F (TTA -> TTT) ,LNEJMEBC_00642,hypothetical protein
 965,C16,73,4,40,0.0001,255.6,5.7,NA,FALSE,FALSE,RA,1,"693,453",Synonymous,G -> A,0.055,N130N (AAC -> AAT) ,katA,Catalase
 966,C16,75,5,40,0.0001,274.2,6.5,NA,FALSE,FALSE,RA,1,"701,369",Synonymous,C -> A,0.067,R244R (CGA -> AGA) ,yclM,Aspartokinase 3
@@ -1347,7 +1347,7 @@
 1346,C24,42,4,40,0.0001,127.3,6.7,NA,TRUE,FALSE,RA,1,"336,027",Nonsynonymous,C -> T,0.095,P89S (CCA -> TCA) ,fpgS,Folylpolyglutamate synthase
 1347,C24,47,4,40,0.0001,156.2,3.2,NA,TRUE,FALSE,RA,1,"420,296",Nonsynonymous,C -> T,0.078,A87V (GCG -> GTG) ,dgkA,Undecaprenol kinase
 1348,C24,45,4,40,0.0001,150.6,4.8,NA,TRUE,FALSE,RA,1,"525,811",Nonsynonymous,G -> T,0.089,R200L (CGT -> CTT) ,LNEJMEBC_00529,hypothetical protein
-1349,C24,45,4,32,0.0006,161.4,2.8,NA,TRUE,FALSE,RA,1,"574,175",Nonsynonymous,G -> T,0.088,V6040F (GTT -> TTT) ,ebh,Extracellular matrix-binding protein ebh
+1349,C24,45,4,32,0.0006,161.4,2.8,repeat regions,FALSE,FALSE,RA,1,"574,175",Nonsynonymous,G -> T,0.088,V6040F (GTT -> TTT) ,ebh,Extracellular matrix-binding protein ebh
 1350,C24,46,21,40,0.0001,1.7,72.7,NA,TRUE,FALSE,RA,1,"601,780",Intergenic,A -> C,0.458,intergenic (+461/-10),arlR,Response regulator ArlR
 1351,C24,39,7,40,0.0001,102.5,13.9,NA,TRUE,FALSE,RA,1,"612,590",Nonsense,G -> T,0.179,E607* (GAA -> TAA) ,LNEJMEBC_00580,hypothetical protein
 1352,C24,51,4,40,0.0001,185.1,5.1,NA,TRUE,FALSE,RA,1,"625,690",Nonsynonymous,C -> A,0.078,G209V (GGT -> GTT) ,lysC,Aspartokinase
@@ -1459,7 +1459,7 @@
 1458,C26,62,4,40,0.0001,238.5,4,NA,TRUE,FALSE,RA,1,"401,822",Nonsynonymous,C -> A,0.064,S658R (AGC -> AGA) ,comEC,ComE operon protein 3
 1459,C26,39,4,40,0.0001,127.9,5.9,NA,FALSE,FALSE,RA,1,"423,686",Synonymous,A -> G,0.103,S93S (AGT -> AGC) ,glyQS,Glycine‑‑tRNA ligase
 1460,C26,48,4,40,0.0001,169.5,4.9,NA,TRUE,FALSE,RA,1,"508,714",Nonsynonymous,G -> T,0.083,A275E (GCA -> GAA) ,ansA,putative L‑asparaginase
-1461,C26,57,4,40,0.0001,199.6,4.6,NA,TRUE,FALSE,RA,1,"584,405",Nonsynonymous,G -> T,0.07,A9450S (GCA -> TCA) ,ebh,Extracellular matrix-binding protein ebh
+1461,C26,57,4,40,0.0001,199.6,4.6,repeat regions,FALSE,FALSE,RA,1,"584,405",Nonsynonymous,G -> T,0.07,A9450S (GCA -> TCA) ,ebh,Extracellular matrix-binding protein ebh
 1462,C26,56,25,40,0.0001,25.2,92.6,NA,TRUE,FALSE,RA,1,"601,781",Intergenic,G -> C,0.446,intergenic (+462/-9),arlR,Response regulator ArlR
 1463,C26,45,4,40,0.0001,158.2,3.2,NA,TRUE,FALSE,RA,1,"623,065",Nonsynonymous,G -> T,0.088,A36E (GCA -> GAA) ,dapB,4‑hydroxy‑tetrahydrodipicolinate reductase
 1464,C26,55,4,40,0.0001,182.6,5.8,NA,TRUE,FALSE,RA,1,"647,759",Nonsynonymous,G -> A,0.073,A49V (GCA -> GTA) ,trpA,Tryptophan synthase alpha chain
@@ -1564,7 +1564,7 @@
 1563,C28,70,4,40,0.0001,261.7,3.6,NA,TRUE,FALSE,RA,1,"257,441",Nonsense,G -> T,0.057,E7* (GAA -> TAA) ,tyrS,Tyrosine‑‑tRNA ligase
 1564,C28,60,4,40,0.0001,210,9,NA,FALSE,FALSE,RA,1,"392,405",Synonymous,A -> T,0.067,L60L (CTT -> CTA) ,LNEJMEBC_00390,hypothetical protein
 1565,C28,72,4,40,0.0001,251.9,4.5,NA,FALSE,FALSE,RA,1,"440,894",Synonymous,A -> G,0.055,K453K (AAA -> AAG) ,glpG,Rhomboid protease GlpG
-1566,C28,51,4,40,0.0001,187.7,4.2,NA,TRUE,FALSE,RA,1,"585,542",Nonsynonymous,C -> A,0.078,Q9829K (CAA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
+1566,C28,51,4,40,0.0001,187.7,4.2,repeat regions,FALSE,FALSE,RA,1,"585,542",Nonsynonymous,C -> A,0.078,Q9829K (CAA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
 1567,C28,51,4,40,0.0001,164.9,6.1,NA,TRUE,FALSE,RA,1,"615,315",Nonsynonymous,C -> T,0.078,D41N (GAC -> AAC) ,LNEJMEBC_00582,TelA‑like protein
 1568,C28,73,4,40,0.0001,253.8,3.5,NA,TRUE,FALSE,RA,1,"678,813",Nonsynonymous,G -> T,0.055,H145N (CAT -> AAT) ,opuD_1,Glycine betaine transporter OpuD
 1569,C28,59,4,40,0.0001,188.2,4.5,NA,TRUE,FALSE,RA,1,"683,231",Nonsense,G -> T,0.068,S269* (TCA -> TAA) ,sbcD,Nuclease SbcCD subunit D
@@ -1714,7 +1714,7 @@
 1713,C31,53,4,40,0.0001,184.9,4.9,NA,FALSE,FALSE,RA,1,"501,745",Intergenic,G -> T,0.076,intergenic (+23/-379),LNEJMEBC_00505  /  ribU,hypothetical protein/Riboflavin transporter RibU
 1714,C31,48,4,40,0.0001,171.3,5.1,NA,FALSE,FALSE,RA,1,"509,976",Synonymous,C -> A,0.083,I121I (ATC -> ATA) ,cmk,Cytidylate kinase
 1715,C31,63,4,40,0.0001,232.5,4.6,NA,TRUE,FALSE,RA,1,"523,647",Nonsynonymous,C -> A,0.064,A300D (GCT -> GAT) ,lapB,Lipopolysaccharide assembly protein B
-1716,C31,65,4,40,0.0001,237.1,4.5,NA,TRUE,FALSE,RA,1,"564,126",Nonsynonymous,C -> A,0.062,A2690D (GCC -> GAC) ,ebh,Extracellular matrix-binding protein ebh
+1716,C31,65,4,40,0.0001,237.1,4.5,repeat regions,FALSE,FALSE,RA,1,"564,126",Nonsynonymous,C -> A,0.062,A2690D (GCC -> GAC) ,ebh,Extracellular matrix-binding protein ebh
 1717,C31,68,4,40,0.0001,257.7,4.5,NA,TRUE,FALSE,RA,1,"620,618",Nonsynonymous,C -> A,0.059,D315Y (GAC -> TAC) ,yxeP_1,putative hydrolase YxeP
 1718,C31,54,8,40,0.0001,153.4,16.5,NA,FALSE,FALSE,RA,1,"631,004",Synonymous,G -> T,0.148,M1M (ATG -> ATT) †,pstS,Phosphate‑binding protein PstS
 1719,C31,56,4,40,0.0001,199.2,5.2,NA,FALSE,FALSE,RA,1,"643,987",Synonymous,A -> G,0.071,I13I (ATT -> ATC) ,LNEJMEBC_00611,hypothetical protein
@@ -1956,7 +1956,7 @@
 1955,C36,57,4,40,0.0001,187,5.6,NA,TRUE,FALSE,RA,1,"11,447",Nonsynonymous,G -> A,0.07,A982T (GCT -> ACT) ,LNEJMEBC_00014,hypothetical protein
 1956,C36,68,4,40,0.0001,237.6,5.2,NA,TRUE,FALSE,RA,1,"45,454",Nonsynonymous,G -> A,0.059,C197Y (TGT -> TAT) ,LNEJMEBC_00048,hypothetical protein
 1957,C36,41,4,40,0.0001,132.5,5.3,NA,TRUE,FALSE,RA,1,"426,779",Nonsynonymous,G -> T,0.098,G323V (GGT -> GTT) ,dnaG,DNA primase
-1958,C36,34,4,40,0.0001,111.9,5.1,NA,TRUE,FALSE,RA,1,"573,803",Nonsynonymous,C -> A,0.118,Q5916K (CAA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
+1958,C36,34,4,40,0.0001,111.9,5.1,repeat regions,FALSE,FALSE,RA,1,"573,803",Nonsynonymous,C -> A,0.118,Q5916K (CAA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
 1959,C36,24,4,40,0.0001,60.5,6.3,NA,TRUE,FALSE,RA,1,"731,332",Nonsynonymous,C -> A,0.167,V318L (GTG -> TTG) ,mutL,DNA mismatch repair protein MutL
 1960,C36,49,4,40,0.0001,149.9,6.4,NA,TRUE,FALSE,RA,1,"735,243",Nonsynonymous,C -> T,0.082,G156S (GGT -> AGT) ,LNEJMEBC_00693,hypothetical protein
 1961,C36,39,16,40,0.0001,32.5,47.3,NA,TRUE,FALSE,RA,1,"781,479",Nonsense,C -> A,0.41,G129* (GGA -> TGA) ,codY,GTP‑sensing transcriptional pleiotropic repressor CodY
@@ -2069,7 +2069,7 @@
 2068,C38,35,6,40,0.0001,94.8,12.1,NA,FALSE,FALSE,RA,1,"507,249",Intergenic,G -> T,0.171,intergenic (+183/-219),ebpS  /  LNEJMEBC_00511,Elastin‑binding protein EbpS/Glucosaminate ammonia‑lyase
 2069,C38,32,5,40,0.0001,80.9,8.8,NA,TRUE,FALSE,RA,1,"516,181",Nonsynonymous,A -> C,0.156,E9A (GAG -> GCG) ,menG,Demethylmenaquinone methyltransferase
 2070,C38,32,4,40,0.0001,92.2,5.2,NA,TRUE,FALSE,RA,1,"522,242",Nonsynonymous,G -> T,0.125,G267C (GGT -> TGT) ,aroA_2,3‑phosphoshikimate 1‑carboxyvinyltransferase
-2071,C38,28,4,40,0.0001,72.6,7.3,NA,FALSE,FALSE,RA,1,"585,226",Synonymous,G -> A,0.143,V9723V (GTG -> GTA) ,ebh,Extracellular matrix-binding protein ebh
+2071,C38,28,4,40,0.0001,72.6,7.3,repeat regions,FALSE,FALSE,RA,1,"585,226",Synonymous,G -> A,0.143,V9723V (GTG -> GTA) ,ebh,Extracellular matrix-binding protein ebh
 2072,C38,29,6,40,0.0001,66.4,12.2,NA,TRUE,FALSE,RA,1,"602,424",Nonsynonymous,G -> T,0.208,R212L (CGT -> CTT) ,arlR,Response regulator ArlR
 2073,C38,45,4,40,0.0001,134.8,6.4,NA,TRUE,FALSE,RA,1,"650,235",Nonsynonymous,C -> T,0.089,G95D (GGT -> GAT) ,trpC,Indole‑3‑glycerol phosphate synthase
 2074,C38,55,4,40,0.0001,184.2,4.8,NA,FALSE,FALSE,RA,1,"666,479",Synonymous,G -> T,0.087,I201I (ATC -> ATA) ,alsT,Amino‑acid carrier protein AlsT
@@ -2121,7 +2121,7 @@
 2120,C39,45,4,40,0.0001,141.7,6.5,NA,TRUE,FALSE,RA,1,"470,902",Intergenic,C -> T,0.089,intergenic (-81/-269),LNEJMEBC_00476,hypothetical protein
 2121,C39,58,4,40,0.0001,209.6,4.8,NA,TRUE,FALSE,RA,1,"526,277",Nonsynonymous,G -> T,0.069,V11F (GTT -> TTT) ,ypjD,putative protein YpjD
 2122,C39,53,4,40,0.0001,180.9,5,NA,FALSE,FALSE,RA,1,"548,710",Synonymous,C -> A,0.076,L1006L (CTC -> CTA) ,der_2,GTPase Der
-2123,C39,62,4,40,0.0001,227.6,3.1,NA,TRUE,FALSE,RA,1,"562,478",Nonsynonymous,C -> A,0.064,H2141N (CAT -> AAT) ,ebh,Extracellular matrix-binding protein ebh
+2123,C39,62,4,40,0.0001,227.6,3.1,repeat regions,FALSE,FALSE,RA,1,"562,478",Nonsynonymous,C -> A,0.064,H2141N (CAT -> AAT) ,ebh,Extracellular matrix-binding protein ebh
 2124,C39,52,4,40,0.0001,186.2,5,NA,TRUE,FALSE,RA,1,"615,850",Nonsynonymous,G -> T,0.077,H81N (CAC -> AAC) ,LNEJMEBC_00583,hypothetical protein
 2125,C39,48,4,40,0.0001,165,4.3,NA,FALSE,FALSE,RA,1,"749,946",Synonymous,T -> C,0.083,G304G (GGA -> GGG) ,LNEJMEBC_00708,hypothetical protein
 2126,C39,33,4,40,0.0001,96.9,6,NA,TRUE,FALSE,RA,1,"758,742",Nonsynonymous,T -> C,0.122,K253R (AAG -> AGG) ,pnp_1,Polyribonucleotide nucleotidyltransferase
@@ -2328,7 +2328,7 @@
 2327,C44,48,4,40,0.0001,170.8,4.4,NA,TRUE,FALSE,RA,1,"491,081",Nonsynonymous,G -> T,0.083,R13I (AGA -> ATA) ,srrA,Transcriptional regulatory protein SrrA
 2328,C44,32,4,40,0.0001,98,5.8,NA,TRUE,FALSE,RA,1,"504,683",Nonsynonymous,C -> A,0.125,H204N (CAT -> AAT) ,recQ_1,ATP‑dependent DNA helicase RecQ
 2329,C44,45,4,40,0.0001,145.2,4.6,NA,TRUE,FALSE,RA,1,"525,567",Nonsynonymous,G -> T,0.089,A119S (GCA -> TCA) ,LNEJMEBC_00529,hypothetical protein
-2330,C44,37,4,40,0.0001,122.3,4.9,NA,TRUE,FALSE,RA,1,"578,849",Nonsynonymous,G -> T,0.108,A7598S (GCG -> TCG) ,ebh,Extracellular matrix-binding protein ebh
+2330,C44,37,4,40,0.0001,122.3,4.9,repeat regions,FALSE,FALSE,RA,1,"578,849",Nonsynonymous,G -> T,0.108,A7598S (GCG -> TCG) ,ebh,Extracellular matrix-binding protein ebh
 2331,C44,37,4,40,0.0001,125.1,5.5,NA,TRUE,FALSE,RA,1,"593,025",Nonsynonymous,C -> A,0.108,A197E (GCA -> GAA) ,thyA,Thymidylate synthase
 2332,C44,50,4,40,0.0001,163.7,6.3,NA,TRUE,FALSE,RA,1,"656,476",Nonsynonymous,G -> A,0.08,A399V (GCA -> GTA) ,umuC,Protein UmuC
 2333,C44,47,4,40,0.0001,160.4,3.1,NA,TRUE,FALSE,RA,1,"662,188",Nonsynonymous,C -> A,0.084,V87F (GTT -> TTT) ,mprF,Phosphatidylglycerol lysyltransferase
@@ -2446,7 +2446,7 @@
 2445,C46,52,4,40,0.0001,187.7,4.9,NA,TRUE,FALSE,RA,1,"515,456",Intergenic,C -> A,0.077,intergenic (+306/-125),LNEJMEBC_00518,hypothetical protein
 2446,C46,NA,NA,NA,NA,NA,NA,NA,TRUE,FALSE,JC,1,"541,310",Indel < 50 bp,DEL 3 bp,0.063,coding (24/345 nt),gpsB,Cell cycle protein GpsB
 2447,C46,71,4,40,0.0001,271.8,3.1,NA,TRUE,FALSE,RA,1,"547,873",Nonsynonymous,G -> T,0.056,K727N (AAG -> AAT) ,der_2,GTPase Der
-2448,C46,51,4,40,0.0001,176.4,4.5,NA,TRUE,FALSE,RA,1,"562,875",Nonsynonymous,C -> A,0.078,A2273E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
+2448,C46,51,4,40,0.0001,176.4,4.5,repeat regions,FALSE,FALSE,RA,1,"562,875",Nonsynonymous,C -> A,0.078,A2273E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
 2449,C46,60,6,40,0.0001,208.4,10.1,NA,TRUE,FALSE,RA,1,"635,463",Nonsynonymous,C -> A,0.1,Q180K (CAA -> AAA) ,phoU,Phosphate‑specific transport system accessory protein PhoU
 2450,C46,64,4,40,0.0001,231.7,10.6,NA,TRUE,FALSE,RA,1,"655,777",Indel < 50 bp,DEL 1 bp,0.062,coding (597/1092 nt),LNEJMEBC_00622,hypothetical protein
 2451,C46,53,4,40,0.0001,194.7,4.9,NA,TRUE,FALSE,RA,1,"701,377",Nonsynonymous,G -> T,0.075,M246I (ATG -> ATT) ,yclM,Aspartokinase 3
@@ -2498,7 +2498,7 @@
 2497,C47,29,4,40,0.0001,85.2,5.9,NA,TRUE,FALSE,RA,1,"418,608",Intergenic,G -> T,0.138,intergenic (+293/-11),LNEJMEBC_00418,PhoH‑like protein
 2498,C47,32,4,40,0.0001,94.6,5.3,NA,TRUE,FALSE,RA,1,"436,320",Intergenic,G -> T,0.125,intergenic (+2/-119),pbpH,Penicillin‑binding protein H
 2499,C47,29,4,40,0.0001,79.3,5.9,NA,TRUE,FALSE,RA,1,"554,300",Nonsynonymous,G -> T,0.139,G11V (GGC -> GTC) ,norB_1,Quinolone resistance protein NorB
-2500,C47,47,4,40,0.0001,161.7,5,NA,TRUE,FALSE,RA,1,"570,531",Nonsynonymous,C -> A,0.085,T4825K (ACG -> AAG) ,ebh,Extracellular matrix-binding protein ebh
+2500,C47,47,4,40,0.0001,161.7,5,repeat regions,FALSE,FALSE,RA,1,"570,531",Nonsynonymous,C -> A,0.085,T4825K (ACG -> AAG) ,ebh,Extracellular matrix-binding protein ebh
 2501,C47,31,4,40,0.0001,89.6,6,NA,TRUE,FALSE,RA,1,"600,401",Nonsynonymous,A -> G,0.129,K5R (AAA -> AGA) ,LNEJMEBC_00571,hypothetical protein
 2502,C47,39,4,40,0.0001,117.5,4.9,NA,TRUE,FALSE,RA,1,"672,817",Intergenic,G -> T,0.103,intergenic (+279/-97),LNEJMEBC_00634,hypothetical protein
 2503,C47,52,4,40,0.0001,186.2,4.4,NA,TRUE,FALSE,RA,1,"678,158",Nonsynonymous,C -> A,0.077,S363I (AGT -> ATT) ,opuD_1,Glycine betaine transporter OpuD
@@ -2550,7 +2550,7 @@
 2549,C48,58,6,40,0.0001,176.1,8.8,NA,TRUE,FALSE,RA,1,"264,566",Nonsynonymous,C -> T,0.099,E288K (GAA -> AAA) ,serA,D‑3‑phosphoglycerate dehydrogenase
 2550,C48,57,4,40,0.0001,192.2,4.1,NA,FALSE,FALSE,RA,1,"337,699",Synonymous,G -> T,0.07,S132S (TCG -> TCT) ,comC,Type 4 prepilin‑like proteins leader peptide‑processing enzyme
 2551,C48,62,6,40,0.0001,213,9.9,NA,TRUE,FALSE,RA,1,"454,979",Nonsynonymous,C -> A,0.097,A263D (GCT -> GAT) ,ypdF,Aminopeptidase YpdF
-2552,C48,41,4,40,0.0001,128,5.3,NA,TRUE,FALSE,RA,1,"556,403",Nonsynonymous,G -> T,0.098,V116L (GTA -> TTA) ,ebh,Extracellular matrix-binding protein ebh
+2552,C48,41,4,40,0.0001,128,5.3,repeat regions,FALSE,FALSE,RA,1,"556,403",Nonsynonymous,G -> T,0.098,V116L (GTA -> TTA) ,ebh,Extracellular matrix-binding protein ebh
 2553,C48,65,4,40,0.0001,240.8,4.5,NA,TRUE,FALSE,RA,1,"724,506",Nonsynonymous,G -> T,0.062,H109N (CAT -> AAT) ,LNEJMEBC_00686,Monoacylglycerol lipase
 2554,C48,56,4,40,0.0001,201.6,4.2,NA,FALSE,FALSE,RA,1,"752,492",Synonymous,G -> T,0.072,T125T (ACC -> ACA) ,LNEJMEBC_00710,hypothetical protein
 2555,C48,50,4,40,0.0001,176.7,5,NA,TRUE,FALSE,RA,1,"784,638",Nonsynonymous,C -> A,0.08,R53I (AGA -> ATA) ,xerC_1,Tyrosine recombinase XerC
@@ -2617,7 +2617,7 @@
 2616,C49,80,8,40,0.0001,275.2,15.8,NA,TRUE,FALSE,RA,1,"492,144",Nonsynonymous,G -> T,0.1,G132V (GGT -> GTT) ,srrB,Sensor protein SrrB
 2617,C49,49,4,40,0.0001,176,4.4,NA,FALSE,FALSE,RA,1,"511,950",Synonymous,G -> T,0.082,V322V (GTG -> GTT) ,rpsA,30S ribosomal protein S1
 2618,C49,61,4,40,0.0001,223.8,4.4,NA,TRUE,FALSE,RA,1,"523,247",Nonsynonymous,G -> T,0.065,V167L (GTA -> TTA) ,lapB,Lipopolysaccharide assembly protein B
-2619,C49,68,4,40,0.0001,252.5,4.2,NA,TRUE,FALSE,RA,1,"563,655",Nonsynonymous,G -> T,0.059,S2533I (AGC -> ATC) ,ebh,Extracellular matrix-binding protein ebh
+2619,C49,68,4,40,0.0001,252.5,4.2,repeat regions,FALSE,FALSE,RA,1,"563,655",Nonsynonymous,G -> T,0.059,S2533I (AGC -> ATC) ,ebh,Extracellular matrix-binding protein ebh
 2620,C49,47,4,40,0.0001,170.2,4.9,NA,FALSE,FALSE,RA,1,"588,972",Intergenic,C -> A,0.085,intergenic (+46/+19),LNEJMEBC_00556  /  LNEJMEBC_00557,hypothetical protein/hypothetical protein
 2621,C49,34,4,40,0.0001,100.4,4.9,NA,FALSE,FALSE,RA,1,"607,712",Synonymous,C -> T,0.117,I272I (ATC -> ATT) ,odhB,Dihydrolipoyllysine‑residue succinyltransferase component of 2‑oxoglutarate dehydrogenase complex
 2622,C49,56,4,40,0.0001,189.4,10.8,NA,TRUE,FALSE,RA,1,"645,949",Indel < 50 bp,DEL 1 bp,0.071,coding (906/1263 nt),femA_1,Aminoacyltransferase FemA
@@ -2677,8 +2677,8 @@
 2676,C50,61,6,40,0.0001,178.8,12.1,NA,TRUE,FALSE,RA,1,"217,973",Nonsynonymous,G -> A,0.099,E761K (GAA -> AAA) ,sasC,LPXTG-anchored repetitive surface protein SasC
 2677,C50,58,6,40,0.0001,200.2,10.7,NA,TRUE,FALSE,RA,1,"305,309",Nonsynonymous,C -> A,0.103,T115N (ACT -> AAT) ,polA,DNA polymerase I
 2678,C50,53,4,40,0.0001,193.2,4.3,NA,TRUE,FALSE,RA,1,"467,433",Nonsynonymous,C -> A,0.075,P295Q (CCA -> CAA) ,bfmBAB,2‑oxoisovalerate dehydrogenase subunit beta
-2679,C50,49,4,40,0.0001,175,4.9,NA,TRUE,FALSE,RA,1,"565,404",Nonsynonymous,G -> T,0.082,G3116V (GGT -> GTT) ,ebh,Extracellular matrix-binding protein ebh
-2680,C50,50,4,40,0.0001,175.1,4.9,NA,TRUE,FALSE,RA,1,"571,239",Nonsynonymous,C -> A,0.08,A5061E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
+2679,C50,49,4,40,0.0001,175,4.9,repeat regions,FALSE,FALSE,RA,1,"565,404",Nonsynonymous,G -> T,0.082,G3116V (GGT -> GTT) ,ebh,Extracellular matrix-binding protein ebh
+2680,C50,50,4,40,0.0001,175.1,4.9,repeat regions,FALSE,FALSE,RA,1,"571,239",Nonsynonymous,C -> A,0.08,A5061E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
 2681,C50,54,5,40,0.0001,170.8,6.9,NA,TRUE,FALSE,RA,1,"711,334",Nonsynonymous,C -> T,0.086,A300V (GCA -> GTA) ,ltaE,Low specificity L‑threonine aldolase
 2682,C50,67,4,40,0.0001,244.3,4.7,NA,FALSE,FALSE,RA,1,"734,470",Synonymous,A -> G,0.06,L149L (TTA -> CTA) ,mutS_1,DNA mismatch repair protein MutS
 2683,C50,50,4,40,0.0001,183.9,4.4,NA,TRUE,FALSE,RA,1,"791,555",Nonsynonymous,G -> T,0.08,H269N (CAT -> AAT) ,lytN,putative cell wall hydrolase LytN
@@ -2799,8 +2799,8 @@
 2798,C52,32,4,40,0.0001,93.2,5.8,NA,TRUE,FALSE,RA,1,"400,814",Nonsynonymous,G -> T,0.125,L322F (TTG -> TTT) ,comEC,ComE operon protein 3
 2799,C52,42,4,40,0.0001,131.4,10,NA,TRUE,FALSE,RA,1,"445,744",Nonsynonymous,A -> T,0.095,N83Y (AAT -> TAT) ,LNEJMEBC_00447,hypothetical protein
 2800,C52,51,4,40,0.0001,175.3,5.2,NA,TRUE,FALSE,RA,1,"477,951",Nonsynonymous,A -> G,0.078,K192E (AAA -> GAA) ,malL,"Oligo‑1,6‑glucosidase"
-2801,C52,39,4,40,0.0001,109,7.2,NA,FALSE,FALSE,RA,1,"557,416",Synonymous,A -> C,0.103,G453G (GGA -> GGC) ,ebh,Extracellular matrix-binding protein ebh
-2802,C52,40,4,40,0.0001,137.2,4.8,NA,TRUE,FALSE,RA,1,"557,760",Nonsynonymous,C -> A,0.1,T568K (ACG -> AAG) ,ebh,Extracellular matrix-binding protein ebh
+2801,C52,39,4,40,0.0001,109,7.2,repeat regions,FALSE,FALSE,RA,1,"557,416",Synonymous,A -> C,0.103,G453G (GGA -> GGC) ,ebh,Extracellular matrix-binding protein ebh
+2802,C52,40,4,40,0.0001,137.2,4.8,repeat regions,FALSE,FALSE,RA,1,"557,760",Nonsynonymous,C -> A,0.1,T568K (ACG -> AAG) ,ebh,Extracellular matrix-binding protein ebh
 2803,C52,40,4,40,0.0001,138,3.4,NA,FALSE,FALSE,RA,1,"821,428",Intergenic,C -> A,0.099,intergenic (-157/+71),rsgA  /  prkC,Small ribosomal subunit biogenesis GTPase RsgA/Serine/threonine‑protein kinase PrkC
 2804,C52,39,4,40,0.0001,125.1,5.7,NA,FALSE,FALSE,RA,1,"913,062",Synonymous,A -> G,0.103,S216S (AGT -> AGC) ,isdF,putative heme‑iron transport system permease protein IsdF
 2805,C52,47,4,40,0.0001,167.7,4.5,NA,TRUE,FALSE,RA,1,"937,982",Nonsynonymous,G -> T,0.085,R113S (CGT -> AGT) ,typA,GTP‑binding protein TypA/BipA
@@ -2891,8 +2891,8 @@
 2890,C54,33,4,40,0.0001,91.6,6.6,NA,FALSE,FALSE,RA,1,"405,749",Intergenic,C -> T,0.121,intergenic (+203/-330),lepA  /  hemN,Elongation factor 4/Oxygen‑independent coproporphyrinogen‑III oxidase‑like protein YqeR
 2891,C54,43,4,40,0.0001,135.1,6.1,NA,TRUE,FALSE,RA,1,"478,140",Nonsynonymous,G -> A,0.093,V255I (GTC -> ATC) ,malL,"Oligo‑1,6‑glucosidase"
 2892,C54,44,4,40,0.0001,152.2,5.3,NA,TRUE,FALSE,RA,1,"521,536",Nonsynonymous,G -> T,0.091,M31I (ATG -> ATT) ,aroA_2,3‑phosphoshikimate 1‑carboxyvinyltransferase
-2893,C54,45,4,32,0.0006,146.2,3.2,NA,TRUE,FALSE,RA,1,"570,128",Nonsynonymous,G -> A,0.088,E4691K (GAA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
-2894,C54,37,4,40,0.0001,119.6,5.7,NA,TRUE,FALSE,RA,1,"582,930",Nonsynonymous,A -> G,0.108,Q8958R (CAA -> CGA) ,ebh,Extracellular matrix-binding protein ebh
+2893,C54,45,4,32,0.0006,146.2,3.2,repeat regions,FALSE,FALSE,RA,1,"570,128",Nonsynonymous,G -> A,0.088,E4691K (GAA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
+2894,C54,37,4,40,0.0001,119.6,5.7,repeat regions,FALSE,FALSE,RA,1,"582,930",Nonsynonymous,A -> G,0.108,Q8958R (CAA -> CGA) ,ebh,Extracellular matrix-binding protein ebh
 2895,C54,33,4,40,0.0001,99,5.9,NA,TRUE,FALSE,RA,1,"637,921",Nonsynonymous,T -> C,0.121,F66L (TTT -> CTT) ,LNEJMEBC_00604,hypothetical protein
 2896,C54,39,4,40,0.0001,117.6,6.8,NA,TRUE,FALSE,RA,1,"684,124",Intergenic,G -> A,0.103,intergenic (-88/+36),sbcD,Nuclease SbcCD subunit D
 2897,C54,36,4,40,0.0001,99.4,7.3,NA,TRUE,FALSE,RA,1,"803,650",Intergenic,T -> G,0.111,intergenic (-15/+11),ffh,Signal recognition particle protein
@@ -3112,7 +3112,7 @@
 3111,C57,39,4,40,0.0001,128.5,5.3,NA,TRUE,FALSE,RA,1,"365,957",Nonsynonymous,G -> T,0.103,R140S (CGT -> AGT) ,LNEJMEBC_00363,putative AAA domain‑containing protein
 3112,C57,52,4,40,0.0001,172.3,4.8,NA,TRUE,FALSE,RA,1,"434,232",Nonsynonymous,G -> T,0.077,S20I (AGT -> ATT) ,znuB,High‑affinity zinc uptake system membrane protein ZnuB
 3113,C57,49,4,40,0.0001,174.7,3.3,NA,TRUE,FALSE,RA,1,"456,961",Nonsynonymous,C -> A,0.081,P63Q (CCG -> CAG) ,cfiB,2‑oxoglutarate carboxylase small subunit
-3114,C57,75,4,40,0.0001,284.6,3.6,NA,FALSE,FALSE,RA,1,"572,245",Synonymous,G -> T,0.053,A5396A (GCG -> GCT) ,ebh,Extracellular matrix-binding protein ebh
+3114,C57,75,4,40,0.0001,284.6,3.6,repeat regions,FALSE,FALSE,RA,1,"572,245",Synonymous,G -> T,0.053,A5396A (GCG -> GCT) ,ebh,Extracellular matrix-binding protein ebh
 3115,C57,41,4,40,0.0001,137.6,4.7,NA,FALSE,FALSE,RA,1,"611,983",Synonymous,G -> T,0.097,G404G (GGG -> GGT) ,LNEJMEBC_00580,hypothetical protein
 3116,C57,55,4,40,0.0001,180.7,3.5,NA,FALSE,FALSE,RA,1,"620,703",Synonymous,T -> C,0.072,A286A (GCA -> GCG) ,yxeP_1,putative hydrolase YxeP
 3117,C57,58,4,40,0.0001,215.1,4.1,NA,TRUE,FALSE,RA,1,"795,643",Nonsense,C -> A,0.069,E262* (GAA -> TAA) ,rbgA,Ribosome biogenesis GTPase A
@@ -3495,8 +3495,8 @@
 3494,C63,60,4,40,0.0001,210.3,3.4,NA,TRUE,FALSE,RA,1,"464,779",Nonsynonymous,A -> G,0.066,E220G (GAA -> GGA) ,LNEJMEBC_00469,Dihydrolipoyl dehydrogenase
 3495,C63,67,4,40,0.0001,249.8,3.8,NA,TRUE,FALSE,RA,1,"465,240",Nonsynonymous,G -> T,0.06,A374S (GCA -> TCA) ,LNEJMEBC_00469,Dihydrolipoyl dehydrogenase
 3496,C63,43,9,40,0.0001,92.8,22.1,NA,FALSE,FALSE,RA,1,"473,661",Synonymous,C -> T,0.207,Y430Y (TAC -> TAT) ,gnd,"6‑phosphogluconate dehydrogenase, decarboxylating"
-3497,C63,66,4,40,0.0001,230.4,5.8,NA,TRUE,FALSE,RA,1,"571,814",Nonsynonymous,G -> A,0.061,A5253T (GCG -> ACG) ,ebh,Extracellular matrix-binding protein ebh
-3498,C63,56,4,40,0.0001,190.1,6.1,NA,TRUE,FALSE,RA,1,"573,885",Nonsynonymous,C -> T,0.071,A5943V (GCA -> GTA) ,ebh,Extracellular matrix-binding protein ebh
+3497,C63,66,4,40,0.0001,230.4,5.8,repeat regions,FALSE,FALSE,RA,1,"571,814",Nonsynonymous,G -> A,0.061,A5253T (GCG -> ACG) ,ebh,Extracellular matrix-binding protein ebh
+3498,C63,56,4,40,0.0001,190.1,6.1,repeat regions,FALSE,FALSE,RA,1,"573,885",Nonsynonymous,C -> T,0.071,A5943V (GCA -> GTA) ,ebh,Extracellular matrix-binding protein ebh
 3499,C63,NA,NA,NA,NA,NA,NA,NA,TRUE,FALSE,JC,1,"658,092",Indel < 50 bp,DEL 40 bp,0.546,coding (945-984/984 nt),msrR,Regulatory protein MsrR
 3500,C63,70,4,40,0.0001,268,3.7,NA,TRUE,FALSE,RA,1,"676,130",Nonsynonymous,G -> T,0.057,H214N (CAT -> AAT) ,acnA,Aconitate hydratase A
 3501,C63,59,4,40,0.0001,221.3,4.6,NA,TRUE,FALSE,RA,1,"706,981",Nonsynonymous,C -> A,0.068,E133D (GAG -> GAT) ,LNEJMEBC_00665,hypothetical protein
@@ -3647,7 +3647,7 @@
 3646,C65,61,5,40,0.0001,195.9,8.7,NA,TRUE,FALSE,RA,1,"436,752",Nonsynonymous,C -> T,0.082,T105M (ACG -> ATG) ,pbpH,Penicillin‑binding protein H
 3647,C65,63,6,40,0.0001,222,10.5,NA,FALSE,FALSE,RA,1,"479,322",Synonymous,G -> T,0.095,G218G (GGC -> GGA) ,LNEJMEBC_00483,hypothetical protein
 3648,C65,56,4,40,0.0001,191.6,9.3,NA,TRUE,FALSE,RA,1,"540,435",Nonsynonymous,A -> T,0.072,K40N (AAA -> AAT) ,LNEJMEBC_00541,hypothetical protein
-3649,C65,54,4,40,0.0001,198,4.7,NA,TRUE,FALSE,RA,1,"559,500",Nonsynonymous,C -> A,0.074,T1148K (ACA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
+3649,C65,54,4,40,0.0001,198,4.7,repeat regions,FALSE,FALSE,RA,1,"559,500",Nonsynonymous,C -> A,0.074,T1148K (ACA -> AAA) ,ebh,Extracellular matrix-binding protein ebh
 3650,C65,56,4,40,0.0001,207.5,4.2,NA,TRUE,FALSE,RA,1,"612,425",Nonsynonymous,G -> T,0.071,A552S (GCA -> TCA) ,LNEJMEBC_00580,hypothetical protein
 3651,C65,70,7,40,0.0001,246.2,12.7,NA,TRUE,FALSE,RA,1,"678,298",Nonsynonymous,C -> A,0.1,W316C (TGG -> TGT) ,opuD_1,Glycine betaine transporter OpuD
 3652,C65,50,4,40,0.0001,169.1,3,NA,TRUE,FALSE,RA,1,"681,857",Nonsynonymous,C -> A,0.079,R352L (CGA -> CTA) ,sbcC,Nuclease SbcCD subunit C
@@ -3741,7 +3741,7 @@
 3740,C66,73,4,40,0.0001,271.6,3.7,NA,FALSE,FALSE,RA,1,"2,677,170",Synonymous,G -> T,0.055,I541I (ATC -> ATA) ,kdpD,Sensor protein KdpD
 3741,C66,90,6,40,0.0001,300.2,5.5,NA,TRUE,FALSE,RA,1,"2,702,241",Nonsynonymous,C -> T,0.056,A60T (GCT -> ACT) ,ilvA,L‑threonine dehydratase biosynthetic IlvA
 3742,C67,31,4,40,0.0001,84.1,7.3,NA,TRUE,FALSE,RA,1,"382,846",Nonsynonymous,C -> T,0.129,A39V (GCA -> GTA) ,greA,Transcription elongation factor GreA
-3743,C67,27,4,40,0.0001,75.9,5.6,NA,TRUE,FALSE,RA,1,"562,851",Nonsynonymous,G -> T,0.148,S2265I (AGC -> ATC) ,ebh,Extracellular matrix-binding protein ebh
+3743,C67,27,4,40,0.0001,75.9,5.6,repeat regions,FALSE,FALSE,RA,1,"562,851",Nonsynonymous,G -> T,0.148,S2265I (AGC -> ATC) ,ebh,Extracellular matrix-binding protein ebh
 3744,C67,33,15,40,0.0001,9,62.7,NA,TRUE,FALSE,RA,1,"603,713",Nonsynonymous,T -> A,0.455,I423N (ATT -> AAT) ,arlS,Signal transduction histidine‑protein kinase ArlS
 3745,C67,22,4,40,0.0001,57.2,6,NA,FALSE,FALSE,RA,1,"679,736",Synonymous,C -> A,0.182,A96A (GCC -> GCA) ,mscL,Large‑conductance mechanosensitive channel
 3746,C67,27,4,40,0.0001,72.6,4.8,NA,FALSE,FALSE,RA,1,"761,559",Synonymous,T -> C,0.148,L199L (TTA -> TTG) ,truB,tRNA pseudouridine synthase B
@@ -3907,8 +3907,8 @@
 3906,C70,52,4,40,0.0001,188.7,4.4,NA,TRUE,FALSE,RA,1,"224,618",Nonsynonymous,G -> T,0.077,D192Y (GAT -> TAT) ,murJ,Lipid II flippase MurJ
 3907,C70,23,5,40,0.0001,53.4,13.3,NA,FALSE,FALSE,RA,1,"484,848",Synonymous,C -> G,0.217,G32G (GGC -> GGG) ,LNEJMEBC_00488,hypothetical protein
 3908,C70,30,4,40,0.0001,94,5.4,NA,TRUE,FALSE,RA,1,"487,884",Nonsynonymous,C -> A,0.133,P178Q (CCA -> CAA) ,xerD_1,Tyrosine recombinase XerD
-3909,C70,36,4,40,0.0001,114,5.7,NA,TRUE,FALSE,RA,1,"575,957",Nonsynonymous,G -> T,0.111,A6634S (GCG -> TCG) ,ebh,Extracellular matrix-binding protein ebh
-3910,C70,36,4,40,0.0001,106.6,6.4,NA,TRUE,FALSE,RA,1,"578,397",Nonsynonymous,C -> T,0.111,A7447V (GCG -> GTG) ,ebh,Extracellular matrix-binding protein ebh
+3909,C70,36,4,40,0.0001,114,5.7,repeat regions,FALSE,FALSE,RA,1,"575,957",Nonsynonymous,G -> T,0.111,A6634S (GCG -> TCG) ,ebh,Extracellular matrix-binding protein ebh
+3910,C70,36,4,40,0.0001,106.6,6.4,repeat regions,FALSE,FALSE,RA,1,"578,397",Nonsynonymous,C -> T,0.111,A7447V (GCG -> GTG) ,ebh,Extracellular matrix-binding protein ebh
 3911,C70,37,4,40,0.0001,112.1,6.3,NA,TRUE,FALSE,RA,1,"592,903",Nonsynonymous,G -> A,0.108,W156* (TGG -> TGA) ,thyA,Thymidylate synthase
 3912,C70,42,6,40,0.0001,124.4,11,NA,TRUE,FALSE,RA,1,"652,623",Nonsynonymous,C -> A,0.143,G291C (GGT -> TGT) ,trpE,Anthranilate synthase component 1
 3913,C70,38,18,40,0.0001,5.8,74.1,NA,TRUE,FALSE,RA,1,"658,666",Nonsynonymous,T -> A,0.474,N137I (AAT -> ATT) ,msrR,Regulatory protein MsrR
@@ -4144,7 +4144,7 @@
 4143,C74,38,4,40,0.0001,122.9,11.7,NA,TRUE,FALSE,RA,1,"417,363",Indel < 50 bp,DEL 1 bp,0.105,coding (753/990 nt),floA,Flotillin-like protein FloA
 4144,C74,37,4,40,0.0001,115.9,5.4,NA,TRUE,FALSE,RA,1,"510,193",Nonsynonymous,G -> T,0.108,A194S (GCA -> TCA) ,cmk,Cytidylate kinase
 4145,C74,41,5,12,0.0631,114.8,5.6,low position-hash score,FALSE,FALSE,RA,1,"542,595",Nonsynonymous,C -> A,0.112,P105Q (CCA -> CAA) ,rlmL,Ribosomal RNA large subunit methyltransferase L
-4146,C74,30,4,40,0.0001,90.7,5.8,NA,TRUE,FALSE,RA,1,"568,298",Nonsynonymous,G -> T,0.133,G4081C (GGT -> TGT) ,ebh,Extracellular matrix-binding protein ebh
+4146,C74,30,4,40,0.0001,90.7,5.8,repeat regions,FALSE,FALSE,RA,1,"568,298",Nonsynonymous,G -> T,0.133,G4081C (GGT -> TGT) ,ebh,Extracellular matrix-binding protein ebh
 4147,C74,38,4,40,0.0001,127.9,4.7,NA,TRUE,FALSE,RA,1,"598,834",Nonsense,G -> T,0.105,E19* (GAA -> TAA) ,LNEJMEBC_00569,hypothetical protein
 4148,C74,28,8,40,0.0001,40.5,22.2,NA,TRUE,FALSE,RA,1,"601,892",Nonsense,C -> T,0.286,Q35* (CAA -> TAA) ,arlR,Response regulator ArlR
 4149,C74,32,6,40,0.0001,79.2,13.2,NA,TRUE,FALSE,RA,1,"773,133",Nonsynonymous,A -> G,0.187,I300T (ATT -> ACT) ,proS,Proline‑‑tRNA ligase
@@ -4266,8 +4266,8 @@
 4265,C76,58,4,40,0.0001,213.5,4.7,NA,TRUE,FALSE,RA,1,"459,435",Nonsense,C -> A,0.069,S155* (TCA -> TAA) ,xseA,Exodeoxyribonuclease 7 large subunit
 4266,C76,63,4,40,0.0001,214.1,4.6,NA,TRUE,FALSE,RA,1,"500,778",Nonsynonymous,G -> A,0.063,A5T (GCA -> ACA) ,LNEJMEBC_00505,hypothetical protein
 4267,C76,85,6,40,0.0001,316.5,9.1,NA,FALSE,FALSE,RA,1,"524,531",Synonymous,C -> A,0.07,L179L (CTC -> CTA) ,LNEJMEBC_00527,hypothetical protein
-4268,C76,76,4,40,0.0001,285.3,3.7,NA,TRUE,FALSE,RA,1,"563,526",Nonsynonymous,G -> T,0.053,S2490I (AGC -> ATC) ,ebh,Extracellular matrix-binding protein ebh
-4269,C76,69,4,40,0.0001,231.5,4.4,NA,TRUE,FALSE,RA,1,"564,843",Nonsynonymous,C -> T,0.058,A2929V (GCA -> GTA) ,ebh,Extracellular matrix-binding protein ebh
+4268,C76,76,4,40,0.0001,285.3,3.7,repeat regions,FALSE,FALSE,RA,1,"563,526",Nonsynonymous,G -> T,0.053,S2490I (AGC -> ATC) ,ebh,Extracellular matrix-binding protein ebh
+4269,C76,69,4,40,0.0001,231.5,4.4,repeat regions,FALSE,FALSE,RA,1,"564,843",Nonsynonymous,C -> T,0.058,A2929V (GCA -> GTA) ,ebh,Extracellular matrix-binding protein ebh
 4270,C76,66,4,40,0.0001,234.9,4.8,NA,TRUE,FALSE,RA,1,"655,782",Nonsynonymous,A -> G,0.061,Q201R (CAA -> CGA) ,LNEJMEBC_00622,hypothetical protein
 4271,C76,53,4,40,0.0001,188.5,4.8,NA,TRUE,FALSE,RA,1,"678,719",Nonsynonymous,C -> A,0.076,R176I (AGA -> ATA) ,opuD_1,Glycine betaine transporter OpuD
 4272,C76,68,4,40,0.0001,254.8,4.4,NA,TRUE,FALSE,RA,1,"761,870",Nonsynonymous,C -> A,0.059,D96Y (GAT -> TAT) ,truB,tRNA pseudouridine synthase B
@@ -4362,7 +4362,7 @@
 4361,C78,40,4,40,0.0001,128.2,9.6,NA,TRUE,FALSE,RA,1,"415,745",Intergenic,A -> T,0.102,intergenic (+79/-141),nfeD,Stomatin-like protein
 4362,C78,37,4,40,0.0001,113.9,6.5,NA,TRUE,FALSE,RA,1,"517,570",Nonsynonymous,C -> T,0.108,L230F (CTT -> TTT) ,hepT,Heptaprenyl diphosphate synthase component 2
 4363,C78,33,4,40,0.0001,107.4,4.2,NA,TRUE,FALSE,RA,1,"532,674",Nonsense,G -> T,0.12,E846* (GAA -> TAA) ,dinG,putative ATP‑dependent helicase DinG
-4364,C78,48,4,40,0.0001,154.9,6.7,NA,TRUE,FALSE,RA,1,"563,062",Nonsense,G -> A,0.083,W2335* (TGG -> TGA) ,ebh,Extracellular matrix-binding protein ebh
+4364,C78,48,4,40,0.0001,154.9,6.7,repeat regions,FALSE,FALSE,RA,1,"563,062",Nonsense,G -> A,0.083,W2335* (TGG -> TGA) ,ebh,Extracellular matrix-binding protein ebh
 4365,C78,38,4,40,0.0001,121.9,5.5,NA,TRUE,FALSE,RA,1,"624,691",Nonsynonymous,C -> A,0.105,G119V (GGT -> GTT) ,asd,Aspartate‑semialdehyde dehydrogenase
 4366,C78,53,4,40,0.0001,172.3,6.5,NA,FALSE,FALSE,RA,1,"648,929",Synonymous,G -> A,0.075,R61R (CGC -> CGT) ,trpB,Tryptophan synthase beta chain
 4367,C78,57,4,40,0.0001,188.9,5,NA,TRUE,FALSE,RA,1,"748,964",Nonsynonymous,G -> A,0.07,P203L (CCG -> CTG) ,phaB,Acetoacetyl‑CoA reductase
@@ -4425,7 +4425,7 @@
 4424,C79,65,4,40,0.0001,245.7,2.2,NA,FALSE,FALSE,RA,1,"404,646",Synonymous,G -> T,0.057,L308L (CTG -> CTT) ,lepA,Elongation factor 4
 4425,C79,NA,NA,NA,NA,NA,NA,NA,TRUE,FALSE,JC,1,"443,569",Indel < 50 bp,DEL 2 bp,0.075,coding (403/975 nt),comGA,ComG operon protein 1
 4426,C79,58,4,40,0.0001,212.4,4,NA,TRUE,FALSE,RA,1,"515,695",Nonsynonymous,G -> T,0.069,D39Y (GAT -> TAT) ,LNEJMEBC_00518,hypothetical protein
-4427,C79,54,4,40,0.0001,194.8,5,NA,TRUE,FALSE,RA,1,"571,512",Nonsynonymous,C -> A,0.074,A5152E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
+4427,C79,54,4,40,0.0001,194.8,5,repeat regions,FALSE,FALSE,RA,1,"571,512",Nonsynonymous,C -> A,0.074,A5152E (GCA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
 4428,C79,61,4,40,0.0001,212.4,4.1,NA,TRUE,FALSE,RA,1,"589,305",Nonsynonymous,C -> A,0.066,G131C (GGC -> TGC) ,LNEJMEBC_00557,hypothetical protein
 4429,C79,53,4,40,0.0001,193.8,4.3,NA,FALSE,FALSE,RA,1,"633,136",Synonymous,C -> A,0.075,L11L (CTC -> CTA) ,pstA,Phosphate transport system permease protein PstA
 4430,C79,73,4,40,0.0001,256.4,9.2,NA,FALSE,FALSE,RA,1,"753,909",Synonymous,T -> A,0.056,L443L (CTA -> CTT) ,ftsK,DNA translocase FtsK
@@ -4483,7 +4483,7 @@
 4482,C80,41,6,40,0.0001,122.2,11.7,NA,TRUE,FALSE,RA,1,"522,242",Nonsynonymous,G -> T,0.146,G267C (GGT -> TGT) ,aroA_2,3‑phosphoshikimate 1‑carboxyvinyltransferase
 4483,C80,40,4,40,0.0001,133.2,5.3,NA,TRUE,FALSE,RA,1,"528,118",Nonsynonymous,C -> A,0.1,S55Y (TCT -> TAT) ,cca,CCA‑adding enzyme
 4484,C80,38,4,40,0.0001,116.2,5.4,NA,TRUE,FALSE,RA,1,"542,488",Nonsynonymous,C -> A,0.105,D69E (GAC -> GAA) ,rlmL,Ribosomal RNA large subunit methyltransferase L
-4485,C80,28,4,40,0.0001,81.2,4.8,NA,FALSE,FALSE,RA,1,"578,098",Synonymous,A -> G,0.142,V7347V (GTA -> GTG) ,ebh,Extracellular matrix-binding protein ebh
+4485,C80,28,4,40,0.0001,81.2,4.8,repeat regions,FALSE,FALSE,RA,1,"578,098",Synonymous,A -> G,0.142,V7347V (GTA -> GTG) ,ebh,Extracellular matrix-binding protein ebh
 4486,C80,46,4,40,0.0001,163.7,4.5,NA,TRUE,FALSE,RA,1,"588,417",Intergenic,C -> A,0.087,intergenic (-25/-378),rnhA,14.7 kDa ribonuclease H‑like protein
 4487,C80,34,4,40,0.0001,105.7,10.3,NA,TRUE,FALSE,RA,1,"591,038",Nonsynonymous,T -> A,0.118,Y202N (TAT -> AAT) ,LNEJMEBC_00559,hypothetical protein
 4488,C80,44,4,40,0.0001,145.6,5.1,NA,TRUE,FALSE,RA,1,"650,386",Nonsense,C -> A,0.091,E45* (GAA -> TAA) ,trpC,Indole‑3‑glycerol phosphate synthase
@@ -4552,7 +4552,7 @@
 4551,C81,42,4,40,0.0001,133.6,9.9,NA,FALSE,FALSE,RA,1,"321,056",Synonymous,A -> T,0.095,P73P (CCA -> CCT) ,tig,Trigger factor
 4552,C81,76,4,40,0.0001,284.4,3.6,NA,TRUE,FALSE,RA,1,"367,752",Nonsynonymous,C -> A,0.053,G283V (GGT -> GTT) ,LNEJMEBC_00367,hypothetical protein
 4553,C81,35,22,40,0.0001,24.8,41.7,tandem repeat,FALSE,FALSE,RA,1,"396,807",Synonymous,T -> C,0.629,D153D (GAT -> GAC) ,nadD,putative nicotinate‑nucleotide adenylyltransferase
-4554,C81,47,6,40,0.0001,129.5,12.6,NA,TRUE,FALSE,RA,1,"584,064",Nonsynonymous,G -> A,0.128,G9336E (GGA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
+4554,C81,47,6,40,0.0001,129.5,12.6,repeat regions,FALSE,FALSE,RA,1,"584,064",Nonsynonymous,G -> A,0.128,G9336E (GGA -> GAA) ,ebh,Extracellular matrix-binding protein ebh
 4555,C81,56,4,40,0.0001,187.9,5.1,NA,FALSE,FALSE,RA,1,"876,854",Synonymous,T -> C,0.071,K359K (AAA -> AAG) ,LNEJMEBC_00820,hypothetical protein
 4556,C81,64,4,40,0.0001,213.4,5.3,NA,TRUE,FALSE,RA,1,"882,590",Nonsense,C -> T,0.063,Q148* (CAA -> TAA) ,LNEJMEBC_00825,hypothetical protein
 4557,C81,65,4,40,0.0001,228.9,5.2,NA,TRUE,FALSE,RA,1,"988,028",Nonsynonymous,G -> A,0.061,D300N (GAC -> AAC) ,qoxA,putative quinol oxidase subunit 2
@@ -4604,8 +4604,8 @@
 4603,C82,58,4,40,0.0001,213.6,3.2,NA,TRUE,FALSE,RA,1,"397,653",Nonsynonymous,C -> A,0.068,A54E (GCG -> GAG) ,rsfS,Ribosomal silencing factor RsfS
 4604,C82,62,4,40,0.0001,226.8,4.1,NA,TRUE,FALSE,RA,1,"419,300",Nonsynonymous,G -> T,0.064,A228S (GCA -> TCA) ,LNEJMEBC_00418,PhoH‑like protein
 4605,C82,58,4,40,0.0001,192.7,5.7,NA,TRUE,FALSE,RA,1,"446,547",Nonsynonymous,G -> A,0.069,A97T (GCA -> ACA) ,LNEJMEBC_00449,hypothetical protein
-4606,C82,60,4,40,0.0001,215.1,4.7,NA,FALSE,FALSE,RA,1,"573,031",Synonymous,G -> T,0.067,T5658T (ACG -> ACT) ,ebh,Extracellular matrix-binding protein ebh
-4607,C82,44,4,40,0.0001,137.4,4.9,NA,TRUE,FALSE,RA,1,"586,362",Nonsynonymous,C -> T,0.091,T10102I (ACA -> ATA) ,ebh,Extracellular matrix-binding protein ebh
+4606,C82,60,4,40,0.0001,215.1,4.7,repeat regions,FALSE,FALSE,RA,1,"573,031",Synonymous,G -> T,0.067,T5658T (ACG -> ACT) ,ebh,Extracellular matrix-binding protein ebh
+4607,C82,44,4,40,0.0001,137.4,4.9,repeat regions,FALSE,FALSE,RA,1,"586,362",Nonsynonymous,C -> T,0.091,T10102I (ACA -> ATA) ,ebh,Extracellular matrix-binding protein ebh
 4608,C82,77,4,40,0.0001,285.9,3.7,NA,TRUE,FALSE,RA,1,"684,371",Nonsynonymous,G -> T,0.052,T86K (ACA -> AAA) ,LNEJMEBC_00641,hypothetical protein
 4609,C82,51,4,40,0.0001,181.9,5,NA,TRUE,FALSE,RA,1,"797,920",Nonsynonymous,G -> T,0.078,S365I (AGC -> ATC) ,LNEJMEBC_00745,hypothetical protein
 4610,C82,78,6,40,0.0001,284.1,9.4,NA,TRUE,FALSE,RA,1,"812,194",Nonsynonymous,C -> A,0.077,G278V (GGT -> GTT) ,plsX,Phosphate acyltransferase
@@ -4658,7 +4658,7 @@
 4657,C83,52,4,40,0.0001,169.6,5.8,NA,TRUE,FALSE,RA,1,"458,783",Nonsynonymous,C -> T,0.077,A73V (GCA -> GTA) ,nusB,Transcription antitermination protein NusB
 4658,C83,63,4,40,0.0001,226.2,4.1,NA,TRUE,FALSE,RA,1,"479,780",Nonsynonymous,C -> A,0.064,V66L (GTG -> TTG) ,LNEJMEBC_00483,hypothetical protein
 4659,C83,53,10,40,0.0001,121.5,27.8,NA,FALSE,FALSE,RA,1,"502,712",Intergenic,G -> A,0.189,intergenic (+43/+63),ribU  /  LNEJMEBC_00507,Riboflavin transporter RibU/Ferredoxin
-4660,C83,48,4,40,0.0001,158.1,6.4,NA,TRUE,FALSE,RA,1,"581,300",Nonsynonymous,C -> T,0.083,P8415S (CCT -> TCT) ,ebh,Extracellular matrix-binding protein ebh
+4660,C83,48,4,40,0.0001,158.1,6.4,repeat regions,FALSE,FALSE,RA,1,"581,300",Nonsynonymous,C -> T,0.083,P8415S (CCT -> TCT) ,ebh,Extracellular matrix-binding protein ebh
 4661,C83,65,5,40,0.0001,234,4.2,NA,TRUE,FALSE,RA,1,"588,364",Nonsynonymous,G -> T,0.068,T10K (ACG -> AAG) ,rnhA,14.7 kDa ribonuclease H‑like protein
 4662,C83,47,4,40,0.0001,154.5,3.2,NA,TRUE,FALSE,RA,1,"623,640",Nonsense,G -> T,0.084,S139* (TCA -> TAA) ,dapA,4‑hydroxy‑tetrahydrodipicolinate synthase
 4663,C83,51,4,40,0.0001,174.6,5.3,NA,FALSE,FALSE,RA,1,"633,553",Synonymous,T -> C,0.078,I150I (ATT -> ATC) ,pstA,Phosphate transport system permease protein PstA
@@ -4733,7 +4733,7 @@
 4732,C84,59,4,40,0.0001,196.4,5.6,NA,TRUE,FALSE,RA,1,"417,379",Nonsynonymous,G -> A,0.068,V257I (GTA -> ATA) ,floA,Flotillin-like protein FloA
 4733,C84,54,4,40,0.0001,180.6,6.4,NA,FALSE,FALSE,RA,1,"428,467",Synonymous,G -> A,0.074,T205T (ACG -> ACA) ,sigA,RNA polymerase sigma factor SigA
 4734,C84,66,4,40,0.0001,246.2,4,NA,TRUE,FALSE,RA,1,"487,055",Nonsense,G -> T,0.06,E68* (GAA -> TAA) ,fur,Ferric uptake regulation protein
-4735,C84,60,4,40,0.0001,227.3,4.1,NA,TRUE,FALSE,RA,1,"563,316",Nonsynonymous,C -> A,0.067,T2420N (ACT -> AAT) ,ebh,Extracellular matrix-binding protein ebh
+4735,C84,60,4,40,0.0001,227.3,4.1,repeat regions,FALSE,FALSE,RA,1,"563,316",Nonsynonymous,C -> A,0.067,T2420N (ACT -> AAT) ,ebh,Extracellular matrix-binding protein ebh
 4736,C84,69,4,40,0.0001,234.3,5.4,NA,TRUE,FALSE,RA,1,"666,879",Nonsynonymous,C -> T,0.058,G68D (GGT -> GAT) ,alsT,Amino‑acid carrier protein AlsT
 4737,C84,43,4,40,0.0001,132.8,6.2,NA,TRUE,FALSE,RA,1,"686,089",Nonsynonymous,C -> T,0.093,R409H (CGT -> CAT) ,tkt,Transketolase
 4738,C84,57,6,40,0.0001,170,12.4,NA,TRUE,FALSE,RA,1,"742,799",Nonsynonymous,C -> T,0.105,G393S (GGT -> AGT) ,rny,Ribonuclease Y
@@ -4853,7 +4853,7 @@
 4852,C86,59,4,40,0.0001,224.6,4.8,NA,TRUE,FALSE,RA,1,"406,343",Nonsynonymous,G -> T,0.068,D89Y (GAT -> TAT) ,hemN,Oxygen‑independent coproporphyrinogen‑III oxidase‑like protein YqeR
 4853,C86,52,4,40,0.0001,173.4,6.3,NA,TRUE,FALSE,RA,1,"466,011",Nonsynonymous,G -> A,0.077,G152S (GGT -> AGT) ,bfmBAA,2‑oxoisovalerate dehydrogenase subunit alpha
 4854,C86,61,4,40,0.0001,227.2,4.7,NA,FALSE,FALSE,RA,1,"506,553",Synonymous,C -> A,0.066,G316G (GGC -> GGA) ,ebpS,Elastin‑binding protein EbpS
-4855,C86,71,4,24,0.004,248.3,3.2,NA,FALSE,FALSE,RA,1,"571,738",Synonymous,G -> A,0.056,T5227T (ACG -> ACA) ,ebh,Extracellular matrix-binding protein ebh
+4855,C86,71,4,24,0.004,248.3,3.2,repeat regions,FALSE,FALSE,RA,1,"571,738",Synonymous,G -> A,0.056,T5227T (ACG -> ACA) ,ebh,Extracellular matrix-binding protein ebh
 4856,C86,68,4,40,0.0001,260.5,3.9,NA,TRUE,FALSE,RA,1,"637,852",Nonsynonymous,G -> T,0.059,G43C (GGT -> TGT) ,LNEJMEBC_00604,hypothetical protein
 4857,C86,58,6,40,0.0001,196.9,11,NA,TRUE,FALSE,RA,1,"667,686",Nonsense,G -> T,0.103,S683* (TCA -> TAA) ,parC,DNA topoisomerase 4 subunit A
 4858,C86,41,4,40,0.0001,138.2,5.4,NA,TRUE,FALSE,RA,1,"708,484",Nonsynonymous,G -> T,0.098,L489M (CTG -> ATG) ,cls_1,Cardiolipin synthase
