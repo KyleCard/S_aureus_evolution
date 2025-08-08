@@ -1027,7 +1027,7 @@ perform_blca <- function(
           )
         })
 
-        best_k <- which.min(sapply(local_blca_res, function(x) { x$AIC }))
+        best_k <- which.max(sapply(local_blca_res, function(x) { x$AIC }))
         best_res <- local_blca_res[[best_k]]
 
         if (best_k == 1) {
