@@ -2,207 +2,514 @@
 title: "Evolution under vancomycin selection drives divergent collateral
 sensitivity patterns in Staphylococcus aureus"
 author: Kyle Card and Arda Durmaz
-Date: 4/2/2025
-output: html_notebook
+Date: 8/8/2025
+output: rmarkdown::github_document
 ---
 
-## Prerequisites - required packages and functions
+## Prerequisites - required packages, file paths, and parameters
 
-```{r Packages, message = FALSE}
-# Data wrangling and plotting
-library(tidyverse)
-library(ggrepel)
-library(cowplot)
-library(ggridges)
-library(magick)
-library(pdftools)
-library(grid)
-library(ComplexHeatmap) # BiocManager::install("ComplexHeatmap")
-library(ggsci)
-library(RColorBrewer)
-library(circlize)
-library(ggnewscale)
+```{r Packages, message = FALSE, warning = FALSE}
+library(tidyverse) # For data manipulation (dplyr, tidyr) and plotting (ggplot2)
+library(cowplot) # For combining ggplot2 plots and themes
+library(proxy) # For calculating pairwise distances and similarities
+library(foreach) # For parallel processing
+library(doParallel) # For parallel processing support
+library(circlize) # For circular visualization and color scales
 
-# Computes Dice's similarity coefficient
-library(proxy)
+# Install ComplexHeatmap package with BiocManager::install("ComplexHeatmap")
+library(ComplexHeatmap) # For creating complex heatmaps
 
-# Parallel processing
-library(foreach)
-library(doParallel)
-
-# Logistic regression, BLCA, and bootstrapping
-library(MASS)
-library(glmnet)
-library(BayesLCA)
-library(Matrix)
-library(boot)
-```
-
-```{r Load functions}
-source("functions.R")
+library(caret) # For creating cross-validation folds
+library(glmnet) # For fitting elastic-net models
+library(ggnewscale) # For adding multiple color scales to ggplot2 plots
+library(BayesLCA) # For Bayesian latent class analysis
+library(Matrix) # For sparse matrix operations
+library(RColorBrewer) # For color palettes
+library(ggsci) # For scientific color palettes
+library(boot) # For bootstrapping functions
+library(ggridges) # For ridge plots
 ```
 
 ```{r Suppress summarise info}
+# Suppress summarise info messages from dplyr
 options(dplyr.summarise.inform = FALSE)
 ```
-<br>
 
+```{r Define file paths}
+# File paths for input data and schema
+input_vanc_MICs <- "data/vancomycin_MICs.csv"
+input_experimental_schema <- "figures/PDFs/experimental_schema.pdf"
+input_mutations <- "data/mutations.csv"
+input_collateral_MICs <- "data/collateral_drug_MICs.csv"
 
-***
+# File paths for output data and plots
+output_cv_plot <- "plots/cv_performance_plot.png"
+output_feature_freq <- "data/feature_stability.tsv"
+output_final_heatmap <- "plots/final_mutation_heatmap.pdf"
+```
+
+```{r Define parameters}
+CONFIDENCE_FREQ_THRESHOLD <- 0.95 # VAF threshold to distinguish consensus from
+# polymorphism
+MIN_FEATURE_COUNT <- 3 # Minimum number of samples a feature must appear in
+POSITIVE_CLASS_WEIGHT <- 5 # Weight for the positive class in the model
+PERMUTATIONS <- 10000 # Number of permutations for similarity test
+CV_FOLDS <- 5 # Number of folds for cross-validation
+BOOTSTRAP_ITERATIONS <- 1000 # Number of bootstrap samples for feature stability
+MIN_FEATURE_STABILITY <- 0.2 # Minimum stability frequency for features to be
+# included in the final model
+BLCA_CLUSTERS <- 5 # Number of clusters for BLCA
+BLCA_ITERATIONS <- 1000 # Number of iterations for BLCA
+CRS_ITERATIONS <- 100 # Number of iterations for CRS bootstrapping
+```
+
+------------------------------------------------------------------------
 
 # Evolution of vancomycin-intermediate resistance in MSSA
 
+The following data represent the minimum inhibitory concentrations (MICs) of the 18 experimental populations evolved under increasing vancomycin concentrations until they reached intermediate resistance levels (4 - 8 $\mu$g/mL).
+
 ```{r Vancomycin MIC data}
-# Data report the minimum inhibitory concentrations (MICs) of the 18
-# experimental populations evolved under increasing vancomycin concentrations
-# until they reach intermediate resistance levels (4 - 8 ug/mL).
 vancomycin_MICs <- read_csv(
-  file = "data/vancomycin_MICs.csv",
+  file = input_vanc_MICs,
   show_col_types = FALSE
 )
 
-vancomycin_MICs
+print(vancomycin_MICs)
 ```
-<br>
 
 ```{r Generate Figure 1, warning = FALSE}
-figure_1 <- generate_figure_1(.x = vancomycin_MICs)
+# --- Function that plots vancomycin MIC data with the experimental schema
+# (Figure 1) ---
 
-figure_1
+generate_figure_1B <- function(.x) {
+  # In the MIC column, replace all "-" with "NA"
+  .x$MIC <- .x$MIC %>%
+    str_replace_all(
+      pattern = "-",
+      replacement = "NA"
+    ) %>%
+    as.numeric()
+
+  # Remove all rows with NA values in the MIC column
+  .x <- .x %>%
+    filter(!is.na(MIC))
+
+  # Plot of vancomycin MICs over time
+  vanc_plot <- .x %>%
+    ggplot(
+      aes(
+        x = day,
+        y = MIC
+      )
+    ) +
+    geom_rect(
+      aes(
+        xmin = -Inf,
+        xmax = Inf,
+        ymin = 4,
+        ymax = 8
+      ),
+      fill = "#E1EEF4",
+      alpha = 0.1
+    ) +
+    geom_line(linewidth = 1.2) +
+    geom_point(size = 2) +
+    facet_wrap(
+      ~population,
+      nrow = 3,
+      ncol = 6
+    ) +
+    scale_x_continuous(breaks = seq(1, 14, 2)) +
+    scale_y_continuous(
+      limits = c(0, 8),
+      breaks = seq(0, 8, 2)
+    ) +
+    xlab("Day") +
+    ylab(
+      expression("MIC (\u03BCg/mL)")
+    ) +
+    theme_cowplot() +
+    theme(
+      panel.grid.major = element_line(
+        color = "#3a3a3a",
+        linewidth = 0.2
+      ),
+      plot.background = element_rect(fill = "#FFFFFF")
+    )
+
+  return(vanc_plot)
+}
+
+figure_1B <- generate_figure_1B(.x = vancomycin_MICs)
+
+print(figure_1B)
 ```
-<br>
 
-***
+------------------------------------------------------------------------
 
 # Genomic evolution
 
-We used the *breseq* pipeline (v0.39.0) to identify mutations in the control and
-treated populations. The control lines evolved in TSB medium without vancomycin,
-whereas the treated lines evolved in TSB medium supplemented with vancomycin.
-We concatenated the *breseq* output files for each control and treated
-population, labeled "C1" through "C87" and "T1" through "T18", respectively.
-We also manually curated the *breseq* output files to ensure that the mutations
-were correctly identified and annotated. Lastly, following Deatherage et al.
-2017 and Card et al. 2021, for each mutation, we determined whether it
-"qualified" for further analyses based on the following criteria:
+We used the `breseq` pipeline (v0.39.0) to identify mutations in the control and treated populations. The control lines evolved in TSB medium without vancomycin, whereas the treated lines evolved in TSB medium supplemented with vancomycin. We concatenated the `breseq` output files for each control and treated population, labeled "C1" through "C87" and "T1" through "T18", respectively. We also manually curated the `breseq` output files to ensure that the mutations were correctly identified and annotated. There were a total of **4,936** variants.
 
-1. It was a nonsynonymous point mutation or small indel in a single gene.
-2. An intergenic mutation within 150 bp upstream of the start of a gene.
-3. A large deletion if at least one of the affected genes was also found
-to be mutated in another population.
+We excluded **33** mutations within multicopy elements, such as ribosomal RNA operons and synthetases responsible for charging tRNA. Gene conversions may cause these mutations, but short-read sequencing data cannot fully resolve them.
+
+For structural variants, including indels less than 50 bp, large deletions and duplications identified by new junction (JC) evidence, we relied on a distinct set of quality metrics that assess the integrity of split-read alignments. A putative junction was considered a true positive only if it satisfied both of the following criteria:
+
+1.  The junction had to be supported by reads that aligned to different starting positions in the reference sequence, as indicated by a position-hash score of 3 or higher. This criterion filters out artifacts arising from PCR.
+
+2.  The junction had to be supported by reads mapping to both strands, thereby mitigating artifacts common to a single strand that occur during library preparation or sequencing. All putative structural variants passing these filters were visually inspected to confirm the supporting read alignments. If a variant did not satisfy either criterion, we excluded it as a false positive. **33** structural variants were excluded in this step.
+
+Additionally, we manually curated SNPs and 1-bp indels supported by read alignment (RA) evidence. If the mutation had a low position-hash score, or occurred in a homopolymer tract or a tandem repeat region, we classified it as a false positive. **169** mutations were excluded in this step.
+
+A total of **4,701** mutations passed the above quality control steps.
+
+Moreover, following Deatherage et al. 2017 and Card et al. 2021, for each remaining mutation, we determined whether it *qualified* for further analyses based on the following criteria:
+
+1.  It was a nonsynonymous point mutation or small indel in a single gene.
+2.  An intergenic mutation within 150 bp upstream of the start of a gene.
+3.  A large deletion if at least one of the affected genes was also found to be mutated in another population.
 
 Conversely, we excluded mutations from further analyses if they were:
 
-1. Synonymous (does not affect the resulting amino acid sequence).
-2. Multicopy elements (e.g., ribosomal RNA operons) that may result from
-gene conversions but cannot be fully resolved using short-read sequencing data.
+1.  Synonymous (does not affect the resulting amino acid sequence).
+2.  Multicopy elements (e.g., ribosomal RNA operons) that may result from gene conversions but cannot be fully resolved using short-read sequencing data.
 
-We also include all mutations that were at or above 5% frequency in the
-populations given that each population had an average read coverage depth
-exceeding 100X. A total of *227* mutations qualify based upon these criteria in
-the vancomycin-evolved lines and *3585* mutations qualify in the control lines.
+A total of **3,703** mutations qualify based on these criteria: **200** mutations in the vancomycin-evolved lines and **3,503** mutations in the control lines.
 
-```{r Reads in mutation data, messages = FALSE}
-mutations <- read_csv(
-  file = "data/mutations.csv",
+```{r Genomic data preparation}
+# --- Load and preprocess data ---
+
+variants <- read_csv(
+  file = input_mutations,
   show_col_types = FALSE
 )
 
-# Filter the mutations object by the presence of qualifying mutations.
-qualifying_mutations <- mutations %>%
-  filter(qualifying_mutation == "yes")
+print(variants)
 
-list(
-  all_mutations = mutations,
-  qualifying_mutations = qualifying_mutations
+variants_processed <- variants %>%
+  # Filter out likely false positives based on manual data inspection. We made
+  # notes on whether the variant occurred in a tandem repeat, homopolymer tract,
+  # or multicopy element. All other variants were given NA.
+  filter(is.na(notes)) %>%
+  # Ensure score columns are numeric and handle non-finite values
+  mutate(
+    across(
+      .cols = c(consensus_score, polymorphism_score),
+      ~ {
+        numeric_values <- as.numeric(.)
+        if_else(
+          condition = numeric_values < 0,
+          true = NA_real_,
+          false = numeric_values
+        )
+      }
+    ),
+    # Replace infinite polymorphism scores with the max finite score
+    polymorphism_score = if_else(
+      is.infinite(polymorphism_score),
+      max(polymorphism_score[is.finite(polymorphism_score)], na.rm = TRUE),
+      polymorphism_score
+    )
+  ) %>%
+  # Calculate scaled weights for regularization. Low-confidence variants get a
+  # higher weight, meaning they will be penalized more.
+  mutate(
+    score_type = case_when(
+      evidence != "RA" ~ "indel",
+      as.numeric(freq) <= CONFIDENCE_FREQ_THRESHOLD ~ "polymorphism",
+      as.numeric(freq) > CONFIDENCE_FREQ_THRESHOLD ~ "consensus",
+      TRUE ~ "other"
+    ),
+    score_to_use = case_when(
+      score_type == "consensus" ~ consensus_score,
+      score_type == "polymorphism" ~ polymorphism_score,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  # Group by score type to calculate median and median absolute deviation (MAD)
+  # for each distribution separately
+  mutate(
+    .by = score_type,
+    local_m = median(
+      x = score_to_use,
+      na.rm = TRUE
+    ),
+    local_mad = mad(
+      x = score_to_use,
+      na.rm = TRUE
+    ),
+    score_scaled = case_when(
+      score_type == "indel" ~ 1.0,
+      is.na(score_to_use) ~ 10.0, # High penalty for missing scores
+      score_to_use <= (local_m - 2 * local_mad) ~ 10.0, # High penalty for low scores
+      score_to_use <= (local_m + 2 * local_mad) ~ 1.0, # Medium penalty
+      score_to_use > (local_m + 2 * local_mad) ~ 0.1, # Low penalty for high scores
+      TRUE ~ 1.0 # Default case
+    )
+  ) %>%
+  # Filter to qualifying mutations and create a clean variant ID
+  filter(qualifying_mutation == TRUE) %>%
+  rename(variant_id = gene)
+
+# --- Create Mutation and Weight Matrices ---
+
+# Create the binary mutation matrix representing the qualifying gene-level
+# mutations in each evolutionary replicate
+mutation_matrix_long <- variants_processed %>%
+  distinct(population, variant_id) %>%
+  mutate(value = 1)
+
+mutation_matrix <- mutation_matrix_long %>%
+  pivot_wider(
+    names_from = variant_id,
+    values_from = value,
+    values_fill = 0
+  )
+
+# Create the weight matrix (average scaled score for each variant in each
+# population)
+weight_matrix_long <- variants_processed %>%
+  group_by(population, variant_id) %>%
+  summarise(
+    mean_score = mean(
+      x = score_scaled,
+      na.rm = TRUE
+    ),
+    .groups = "drop"
+  )
+
+weight_matrix <- weight_matrix_long %>%
+  pivot_wider(
+    names_from = variant_id,
+    values_from = mean_score
+  )
+
+
+# --- Align and Finalize Matrices ---
+
+# Ensure rows and columns are in the same order for both matrices.
+sample_order <- mutation_matrix$population
+feature_order <- setdiff(
+  x = colnames(mutation_matrix),
+  y = "population"
+)
+
+# Convert to numeric matrices and remove the population column.
+# We use this matrix for the genomic similarity analysis.
+mutation_matrix <- as.matrix(mutation_matrix[, feature_order])
+rownames(mutation_matrix) <- sample_order
+
+W_temp <- as.matrix(weight_matrix[, feature_order])
+rownames(W_temp) <- weight_matrix$population
+
+# Align W_temp to X and fill missing weights with a default value of 1.
+W <- W_temp[sample_order, feature_order]
+W[is.na(W)] <- 1
+
+# Filter features that don't appear in a minimum number of samples
+feature_counts <- colSums(mutation_matrix)
+features_to_keep <- which(feature_counts >= MIN_FEATURE_COUNT)
+
+mutation_matrix_final <- mutation_matrix[, features_to_keep]
+W_final <- W[, features_to_keep]
+final_feature_names <- colnames(mutation_matrix_final)
+
+# Define the response variable (y) and observation weights
+response_var <- as.factor(
+  ifelse(
+    str_starts(
+      sample_order, "T"
+    ),
+    yes = "Treated",
+    no = "Control"
+  )
+)
+
+observation_weights <- ifelse(
+  response_var == "Treated",
+  yes = POSITIVE_CLASS_WEIGHT,
+  no = 1.0
 )
 ```
-<br>
 
-The following code:
-
-1. Generates a binary matrix representing the qualifying gene-level mutations
-in each evolutionary replicate. We use this matrix for subsequent analyses.
-2. Calculates the average pairwise similarity within the vancomycin-adapted
-and the control lines. We then compare the average similarity between the two
-groups to determine if the vancomycin-adapted lines exhibit a higher degree of
-genomic parallelism than the control lines.
-3. Performs a permutation test to evaluate the statistical significance of
-the observed difference between the vancomycin-adapted and control lines.
-
-```{r Generate binary matrix and perform genomic analyses}
-binary_matrix <- generate_binary_matrix(.x = qualifying_mutations)
-genomic_results <- perform_genomic_analysis(.x = binary_matrix)
-```
-<br>
-
----
-
-We quantified the extent of genomic parallelism in the vancomycin-adapted lines
-and in the control lines by calculating Dice's Similarity Coefficient (*S*)
-for each population pair, where:
+We quantified the extent of genomic parallelism in the vancomycin-adapted lines and in the control lines by calculating Dice's Similarity Coefficient (*S*) for each population pair, where:
 
 $$S = \frac{2|X \cap Y|}{|X|+|Y|}$$
 
-$|X|$ and $|Y|$ represent the number of genes with qualifying mutations in each
-population, and $|X \cap Y|$ is the number of mutated genes in common between
-them. *S* therefore ranges from 0, when the pair share no mutations in common,
-to 1, when both have mutations in exactly the same set of genes
-(Deatherage et al., 2017; Card et al. 2021).
+$|X|$ and $|Y|$ represent the number of genes with qualifying mutations in each population, and $|X \cap Y|$ is the number of mutated genes in common between them. *S* therefore ranges from 0, when the pair share no mutations in common, to 1, when both have mutations in exactly the same set of genes (Deatherage et al., 2017; Card et al. 2021).
 
-By default, the perform_genomic_analysis function will output a list containing
-two elements:
+The perform_genomic_analysis function will output a list containing two elements:
 
-1. Average pairwise similarity within the vancomycin-treated group
-($S_v \approx 0.0625$) and within the control group
-($S_c \approx 0.0290$). In other words, two populations that
-independently evolved under vancomycin selection had, on average, *6.25%* of
-their mutated genes in common, whereas those that evolved under identical
-conditions, but without vancomycin, shared on average only *2.90%* of their
-mutated genes.
+1.  Average pairwise similarity within the vancomycin-treated group $S_v \approx 0.063$ and within the control group ($S_c \approx 0.023$). In other words, two populations that independently evolved under vancomycin selection had, on average, **6.3%** of their mutated genes in common, whereas those that evolved under identical conditions, but without vancomycin, shared on average only **2.3%** of their mutated genes.
 
-2. The difference between these averages
-($\overline{S}_v - \overline{S}_c \approx 0.0335$) represents how much greater
-(on average) the vancomycin-adapted lines' similarity is relative to the control
-lines. We expect that the vancomycin-adapted lines will exhibit a higher degree
-of genomic parallelism than the control lines.
+2.  The difference between these averages ($S_v - S_c \approx 0.04$) represents how much greater (on average) the vancomycin-adapted lines' similarity is relative to the control lines. We expect that the vancomycin-adapted lines will exhibit a higher degree of genomic parallelism than the control lines.
 
-```{r Similarity results}
-similarity <- genomic_results$similarity
-names(similarity) <- c("Average pairwise similarity", "Difference in means")
+3.  To evaluate the statistical significance of the observed difference between the vancomycin-adapted and control lines, the code generates a distribution under the null hypothesis that there is no difference between the two groups. To achieve this distribution, we permuted the population labels by resampling without replacement 10,000 times. For each permutation, we calculated the difference in $S_v$ and $S_c$. We then compared our observed difference to the null distribution of differences. The *p*-value is the proportion of permutations where the difference was greater than or equal to the observed difference.
 
-head(similarity)
-```
-<br>
+```{r Perform genomic similarity analysis}
+# --- Function to calculate pairwise similarity and average similarity within
+# groups. If permutation = TRUE, shuffles the population labels before
+# calculating similarity. ---
 
----
+perform_genomic_analysis <- function(.x, num_perm = 10000) {
+  calculate_similarity <- function(.x, permutation = FALSE) {
+    # Sample the lines without replacement (shuffles population labels)
+    if (permutation == TRUE) {
+      shuffled_row_names <- sample(row.names(.x))
+      row.names(.x) <- shuffled_row_names
+    }
 
-To evaluate the statistical significance of the observed difference between
-the vancomycin-adapted and control lines, we generated a distribution under the
-null hypothesis that there is no difference between the two groups. To achieve
-this distribution, we permuted the population labels by resampling without
-replacement 10,000 times. For each permutation, we calculated the difference
-in $S_v$ and $S_c$. We then compared our observed difference to the null
-distribution of differences. The *p*-value is the proportion of permutations
-where the difference was greater than or equal to the observed difference.
+    # Compute Dice's Similarity Coefficient for all possible replicate pairs.
+    pwise_simil_matrix <- as.matrix(
+      simil(
+        x = .x,
+        method = "Dice",
+        by_rows = TRUE,
+        upper = TRUE,
+        diag = TRUE
+      )
+    )
 
-```{r Bootstrap results}
-genomic_permutation_data <- genomic_results$permutation_results
-significance <- genomic_results$significance
+    # All values above (and including) the matrix diagonal are converted to NA
+    diag(pwise_simil_matrix) <- NA
+    pwise_simil_matrix[upper.tri(pwise_simil_matrix)] <- NA
 
-genomic_permutation_results <- list(
-  ... = genomic_permutation_data,
-  ... = significance
+    # Convert matrix to a long data frame for analysis
+    pwise_simil_df <- pwise_simil_matrix %>%
+      as.data.frame() %>%
+      rownames_to_column(var = "population_1") %>%
+      pivot_longer(
+        cols = -population_1,
+        names_to = "population_2",
+        values_to = "value",
+        values_drop_na = TRUE
+      ) %>%
+      mutate(
+        group_1 = str_remove_all(string = population_1, pattern = "\\d"),
+        group_2 = str_remove_all(string = population_2, pattern = "\\d"),
+        comparison_type = ifelse(
+          group_1 == group_2,
+          yes = "within_group",
+          no = "between_group"
+        )
+      )
+
+    # Computes the mean pairwise similarity within each group
+    avg_similarity_df <- pwise_simil_df %>%
+      filter(comparison_type == "within_group") %>%
+      group_by(group_1) %>%
+      summarize(
+        avg = mean(value),
+        .groups = "drop"
+      )
+
+    # Calculate the difference between groups
+    control_avg <- avg_similarity_df %>%
+      filter(group_1 == "C") %>%
+      pull(avg)
+
+    treated_avg <- avg_similarity_df %>%
+      filter(group_1 == "T") %>%
+      pull(avg)
+
+    difference <- treated_avg - control_avg
+    names(difference) <- "difference"
+
+    if (permutation == FALSE) {
+      results <- list(avg_similarity_df, difference)
+    } else {
+      results <- avg_similarity_df %>%
+        mutate(group = ifelse(
+          group_1 == "C",
+          yes = "control",
+          no = "treated"
+        )) %>%
+        dplyr::select(-group_1) %>%
+        pivot_wider(
+          names_from = group,
+          values_from = avg
+        ) %>%
+        mutate(difference = treated - control)
+    }
+    return(results)
+  }
+
+  # --- Function to perform permutation test in parallel ---
+
+  perform_permutation_test <- function(.x, num_perm) {
+    cl <- makeCluster(detectCores() - 1)
+    registerDoParallel(cl)
+
+    results <- foreach(
+      i = seq_len(num_perm),
+      .combine = rbind,
+      .packages = c("tidyverse", "proxy"),
+      .export = "calculate_similarity"
+    ) %dopar% {
+      set.seed(i)
+      calculate_similarity(
+        .x = .x,
+        permutation = TRUE
+      )
+    }
+    stopCluster(cl)
+    return(results)
+  }
+
+  # --- Result outputs ---
+
+  # Calculate observed similarity
+  similarity <- calculate_similarity(.x = .x)
+
+  # Perform permutation test
+  permutation_results <- perform_permutation_test(
+    .x = .x,
+    num_perm = num_perm
+  )
+
+  # Calculate significance
+  observed_difference <- similarity[[2]]
+  significance <- sum(
+    permutation_results$difference >= observed_difference
+  ) / num_perm
+
+  return(
+    list(
+      similarity = similarity,
+      permutation_results = permutation_results,
+      significance = significance
+    )
+  )
+}
+
+
+# --- Run the genomic analysis ---
+
+genomic_analysis <- perform_genomic_analysis(
+  .x = mutation_matrix,
+  num_perm = PERMUTATIONS
 )
 
-names(genomic_permutation_results) <- c("Permutation data", "Significance")
 
-head(genomic_permutation_results)
+# --- Results ---
+
+similarity <- genomic_analysis$similarity
+names(similarity) <- c("Average pairwise similarity", "Difference in means")
+
+genomic_results <- list(
+  similarity_results = similarity,
+  permutation_results = genomic_analysis$permutation_results,
+  p_value = genomic_analysis$significance
+)
+
+print(genomic_results)
 ```
-<br>
 
 ```{r Plot the permuted distribution of differences}
-figure_S1 <- genomic_permutation_data %>%
+# --- Plot the distribution of differences in mean similarity (Figure S1) ---
+
+figure_S1 <- genomic_analysis$permutation_results %>%
   ggplot(
     aes(x = difference)
   ) +
@@ -211,22 +518,34 @@ figure_S1 <- genomic_permutation_data %>%
     fill = "#7C8DA2"
   ) +
   geom_vline(
-    xintercept = similarity[[2]]$difference,
+    xintercept = similarity[[2]],
     linetype = "dashed",
     color = "#000000"
   ) +
+  scale_x_continuous(
+    limits = c(-0.02, 0.04),
+    breaks = seq(-0.02, 0.04, by = 0.01)
+  ) +
   annotate(
     geom = "text",
-    x = similarity[[2]]$difference - 0.01,
+    x = similarity[[2]] - 0.01,
     y = 850,
     label = "Observed difference",
     color = "#000000"
   ) +
   annotate(
     geom = "text",
-    x = similarity[[2]]$difference - 0.01,
+    x = similarity[[2]] - 0.012,
     y = 800,
-    label = "P < 0.0001",
+    label = "P",
+    color = "#000000",
+    fontface = "italic"
+  ) +
+  annotate(
+    geom = "text",
+    x = similarity[[2]] - 0.008,
+    y = 800,
+    label = "< 0.0001",
     color = "#000000"
   ) +
   xlab("Difference in mean similarity") +
@@ -237,45 +556,226 @@ figure_S1 <- genomic_permutation_data %>%
     plot.background = element_rect(fill = "white")
   )
 
-figure_S1
+print(figure_S1)
 ```
-<br>
 
-The permutation test showed that the vancomycin-adapted lines differ
-significantly in genomic parallelism relative to the control lines.
-However, this analysis does not specify which genes are associated with 
-vancomycin selection. To identify these genes, we perform multivariate logistic
-regression with the treatment status (i.e., vancomycin or no vancomycin) as the
-outcome and qualifying gene-level mutations as the predictors. We only
-include in our model qualifying mutations that occur in at least three
-populations resulting in 446 gene-level mutations. Because there are only
-18 outcome events (i.e., populations that evolved under vancomycin selection)
-and 446 predictors, we use L1 and L2 penalization on model coefficients to avoid
-overfitting.
+The permutation test showed that the vancomycin-adapted lines differ significantly in genomic parallelism relative to the control lines. However, this analysis does not identify which genes are associated with vancomycin selection. To identify these genes, we implemented a weighted elastic-net logistic regression using the `glmnet` package. This approach incorporates both L1 (LASSO) and L2 (Ridge) regularization to perform feature selection on a high-dimensional dataset. We included qualifying mutations that occurred in at least three populations, resulting in **484** gene-level features for the model.
 
-We perform this procedure in two steps. First, we determine the number of
-iterations needed to achieve convergence of the model coefficient estimates.
-Second, we run the logistic regression model with the updated number of
-iterations.
+A key feature of our model is the integration of variant-calling confidence scores to guide the regularization process. Each gene-level feature was assigned a specific penalty weight based on its underlying `breseq` confidence scores. This process was implemented in a discretized manner, where variants with low, medium, and high confidence were assigned regularization weights of 10.0, 1.0, and 0.1, respectively. This weighting scheme forces the model to apply a stronger penalty to low-confidence variants, thereby prioritizing the selection of features supported by high-quality data.
 
-```{r Logistic regression, message = FALSE}
-regression_and_plots <- perform_regression_and_plots(.x = binary_matrix)
+To identify a robust set of informative features, we first determined the optimal model hyperparameters ($\alpha$ and $\lambda$) via k-fold cross-validation. We then performed a bootstrap analysis over 1,000 iterations, fitting the weighted model with these optimal parameters to a new bootstrap sample of the data in each run. Given the sparsity-inducing property of L1 regularization, we tracked the frequency of non-zero coefficients for each gene across all iterations. Mutations exhibiting non-zero coefficients in at least 20% of the iterations were retained, constituting the final set of stable features for subsequent Bayesian latent class analysis (BLCA). Finally, we computed the 95% confidence intervals for each selected gene’s coefficient and exponentiated the endpoints to obtain the odds ratio, allowing us to determine the direction and strength of its association with the selection condition.
 
-regression_summary <- regression_and_plots[[1]][[1]]
-OR_matrix <- regression_and_plots[[1]][[2]]
-
-# Plots
-convergence_plots <- regression_and_plots[[2]]
-
-list(
-  convergence_plots = convergence_plots,
-  regression_summary = regression_summary
+```{r Heatmap of regularization weights}
+# Visualization of how different variants will be penalized.
+# Red indicates a higher weight and thus a stronger penalty.
+weight_col_fun <- colorRamp2(
+  breaks = c(0, 5, 10),
+  colors = c("white", "orange", "firebrick")
 )
+
+# Create heatmap of weights for each population and feature
+weight_heatmap <- Heatmap(
+  W_final,
+  name = "Scaled Penalty",
+  col = weight_col_fun,
+  row_names_gp = gpar(fontsize = 6),
+  column_names_gp = gpar(fontsize = 4),
+  border_gp = gpar(col = "grey"),
+  row_split = response_var, # Split columns (samples) by group
+  show_row_dend = FALSE,
+  show_column_dend = FALSE, # Also hide column dendrogram for clarity
+  row_title = "Populations",
+  column_names_rot = 45
+)
+
+draw(weight_heatmap)
 ```
-<br>
+
+```{r Weighted elastic-net logistic regression}
+# --- Cross-validation to find optimal hyperparameters ---
+
+# Create stratified folds to ensure class balance in each fold
+set.seed(123) # for reproducibility
+
+cv_folds_list <- createFolds(
+  response_var,
+  k = CV_FOLDS,
+  list = TRUE,
+  returnTrain = FALSE
+)
+
+# Convert the list of folds into a vector of fold IDs for each observation
+cv_fold_ids <- numeric(length(response_var))
+
+# Assign fold numbers to each observation based on the created folds
+for (i in 1:length(cv_folds_list)) {
+  cv_fold_ids[cv_folds_list[[i]]] <- i
+}
+
+# Define the grid of alpha values to test
+alpha_grid <- c(0.25, 0.5, 0.75, 1.0)
+
+# Run CV for each alpha
+cv_results <- map_df(alpha_grid, function(current_alpha) {
+  # cv.glmnet performs k-fold cross-validation to find the optimal lambda
+  cv_fit <- cv.glmnet(
+    x = mutation_matrix_final,
+    y = response_var,
+    family = "binomial",
+    alpha = current_alpha,
+    penalty.factor = colMeans(W_final), # Penalty factors are per-feature
+    weights = observation_weights,
+    foldid = cv_fold_ids, # Use the correctly formatted fold assignments
+    type.measure = "auc" # Use AUC for performance evaluation
+  )
+
+  # Store results
+  tibble(
+    alpha = current_alpha,
+    lambda_min = cv_fit$lambda.min, # Lambda giving max AUC
+    lambda_1se = cv_fit$lambda.1se, # Simplest model within 1-SE of max AUC
+    auc_min = max(cv_fit$cvm),
+    n_coef_min = cv_fit$nzero[which.max(cv_fit$cvm)],
+    auc_1se = cv_fit$cvm[cv_fit$lambda == cv_fit$lambda.1se],
+    n_coef_1se = cv_fit$nzero[cv_fit$lambda == cv_fit$lambda.1se]
+  )
+})
+
+# Choose the best parameters
+best_params <- cv_results %>%
+  arrange(desc(auc_min)) %>%
+  head(1)
+chosen_alpha <- best_params$alpha
+chosen_lambda <- best_params$lambda_min
+
+
+# --- Bootstrapping ---
+
+# To assess how robustly features are selected, we train the model on many
+# bootstrap samples of the data and record how often each feature's
+# coefficient is non-zero.
+
+# List to store coefficients from each bootstrap iteration
+bootstrap_coefs <- map(1:BOOTSTRAP_ITERATIONS, function(i) {
+  # Create a bootstrap sample (sampling with replacement)
+  set.seed(123 + i)
+  sample_indices <- sample(1:nrow(mutation_matrix_final), replace = TRUE)
+
+  # Fit the model with the chosen parameters on the bootstrap sample
+  fit <- glmnet(
+    x = mutation_matrix_final[sample_indices, ],
+    y = response_var[sample_indices],
+    family = "binomial",
+    alpha = chosen_alpha,
+    lambda = chosen_lambda,
+    penalty.factor = colMeans(W_final),
+    weights = observation_weights[sample_indices]
+  )
+
+  # Return the full vector of coefficients
+  as.vector(coef(fit))
+})
+
+# Convert the list of coefficient vectors into a matrix
+coef_matrix <- do.call(rbind, bootstrap_coefs)
+
+# Remove the first column corresponding to the intercept
+coef_matrix <- coef_matrix[, -1]
+
+colnames(coef_matrix) <- colnames(mutation_matrix_final)
+
+
+# --- Calculate stability and odds ratios from bootstrap distributions ---
+
+# Iterate over each feature (column) and calculate stats
+odds_ratio_df <- map_dfr(colnames(coef_matrix), function(feature_name) {
+  # Get the distribution of coefficients for the current feature
+  feature_coeffs <- coef_matrix[, feature_name]
+
+  # Calculate stability (frequency of non-zero coefficients)
+  stability_freq <- sum(feature_coeffs != 0) / BOOTSTRAP_ITERATIONS
+
+  # We are only interested in features with some minimum stability
+  if (stability_freq >= MIN_FEATURE_STABILITY) {
+    # Get the subset of non-zero coefficients to calculate CIs
+    non_zero_coeffs <- feature_coeffs[feature_coeffs != 0]
+
+    # Calculate the mean coefficient and the 95% CI from the bootstrap
+    # distribution
+    mean_coef <- mean(non_zero_coeffs)
+    ci_coef <- quantile(
+      x = non_zero_coeffs,
+      probs = c(0.025, 0.975),
+      na.rm = TRUE
+    )
+
+    # Exponentiate to calculate the odds ratio and its CI
+    tibble(
+      feature = feature_name,
+      stability_freq = stability_freq,
+      mean_coefficient = mean_coef,
+      odds_ratio = exp(mean_coef),
+      ci_low = exp(ci_coef[1]),
+      ci_high = exp(ci_coef[2])
+    )
+  } else {
+    NULL # Return nothing if the feature is not stable
+  }
+}) %>%
+  arrange(desc(odds_ratio)) %>%
+  # Is the odds ratio greater or less than one?
+  mutate(
+    direction = ifelse(
+      odds_ratio > 1,
+      yes = "greater",
+      no = "lesser"
+    )
+  )
+
+print(odds_ratio_df)
+
+
+# --- Process the odds ratio data for visualization and BLCA ---
+
+# Exclude features in which the CI overlaps with 1 (i.e., not statistically
+# significant), and exclude odds ratios with an absolute difference of more than
+# 0.5
+odds_ratio_processed <- odds_ratio_df %>%
+  filter(!(ci_low <= 1 & ci_high >= 1)) %>%
+  filter(abs(odds_ratio - 1) >= 0.5)
+
+# Get features with odds ratio > 1 (associated with vancomycin)
+vanc_features <- odds_ratio_processed %>%
+  filter(direction == "greater") %>%
+  pull(feature)
+
+# Get features with odds ratio < 1 (associated with control)
+control_features <- odds_ratio_processed %>%
+  filter(direction == "lesser") %>%
+  pull(feature)
+
+# Processed features
+processed_features <- odds_ratio_processed$feature
+
+# Processed features with odds ratios greater than 1
+processed_features_greater <- odds_ratio_processed %>%
+  filter(odds_ratio > 1) %>%
+  pull(feature)
+
+# Processed features with odds ratios less than 1
+processed_features_lesser <- odds_ratio_processed %>%
+  filter(odds_ratio < 1) %>%
+  pull(feature)
+
+# Create a matrix of processed features for visualization and BLCA
+processed_features_matrix <- mutation_matrix[, processed_features]
+```
 
 ```{r Plot of mutation heatmap}
-figure_2A <- mutations %>%
+# --- Bar chart of mutation types (Figure 2A) ---
+
+figure_2A <- variants %>%
+  filter(is.na(notes) & !is.na(mutation_type)) %>%
   ggplot(
     aes(x = fct_infreq(mutation_type))
   ) +
@@ -293,15 +793,176 @@ figure_2A <- mutations %>%
   ) +
   coord_flip()
 
+
+# --- Odds ratio plot (Figure 2B) ---
+
+generate_OR_plot <- function(.x) {
+  OR_filtered <- .x %>%
+    filter(feature %in% processed_features)
+
+  plot <- OR_filtered %>%
+    ggplot(
+      aes(
+        x = fct_reorder(
+          .f = feature,
+          .x = odds_ratio,
+          .desc = TRUE
+        ),
+        y = odds_ratio,
+        color = direction
+      )
+    ) +
+    geom_point(size = 3) +
+    geom_errorbar(
+      aes(
+        ymin = ci_low,
+        ymax = ci_high
+      ),
+      width = 0.2
+    ) +
+    geom_hline(
+      yintercept = 1,
+      linetype = "dashed",
+      color = "#000000"
+    ) +
+    ylab("Average odds ratio") +
+    xlab("Gene") +
+    scale_color_manual(values = c("#847F9F", "#FAC9B8")) +
+    theme_cowplot() +
+    theme(
+      axis.text.x = element_text(
+        face = "italic",
+        angle = 90,
+        vjust = 0.5,
+        hjust = 1
+      ),
+      plot.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(color = "#EBEBEB"),
+      legend.position = "none"
+    )
+
+  return(plot)
+}
+
 figure_2B <- generate_OR_plot(
-  .x = regression_summary,
-  .y = OR_matrix
+  .x = odds_ratio_df
 )
 
-figure_2C <- generate_heatmap_plot(
-  .x = regression_summary,
-  .y = OR_matrix
-)
+
+# --- Heatmap of mutations in selected features (Figure 2C) ---
+
+generate_heatmap_plot <- function(.x) {
+  # Prepare data for heatmap
+  heatmap_df <- .x %>%
+    t() %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "feature") %>%
+    pivot_longer(
+      cols = -feature,
+      names_to = "population",
+      values_to = "mutation_presence"
+    ) %>%
+    mutate(
+      direction = ifelse(
+        test = feature %in% processed_features_greater,
+        yes = "greater",
+        no = "lesser"
+      ),
+      treatment_group = ifelse(
+        test = grepl(
+          pattern = "T",
+          x = population
+        ),
+        yes = "vancomycin",
+        no = "control"
+      ),
+      population = str_remove_all(
+        string = population,
+        pattern = "\\D"
+      )
+    )
+
+  # Heatmap plot
+  heatmap_plot <- heatmap_df %>%
+    ggplot() +
+    facet_grid(
+      factor(
+        x = treatment_group,
+        levels = c("vancomycin", "control")
+      ) ~ .,
+      scales = "free_y",
+      space = "free_y",
+      labeller = as_labeller(
+        c(
+          "control" = "Control lines",
+          "vancomycin" = "Vancomycin-adapted lines"
+        )
+      )
+    ) +
+    geom_tile(
+      aes(
+        y = fct_rev(
+          factor(
+            x = population,
+            levels = 1:87
+          )
+        ),
+        x = factor(
+          x = feature,
+          levels = colnames(processed_features_matrix)
+        ),
+        fill = mutation_presence
+      ),
+      data = filter(
+        .data = heatmap_df,
+        direction == "lesser"
+      ),
+      color = "#EBEBEB"
+    ) +
+    labs(
+      y = "Population",
+      x = "Gene",
+    ) +
+    scale_fill_gradient(low = "#FFFFFF", high = "#FAC9B8") +
+    new_scale_fill() +
+    geom_tile(
+      aes(
+        y = fct_rev(
+          factor(
+            x = population,
+            levels = 1:87
+          )
+        ),
+        x = factor(
+          x = feature,
+          levels = colnames(processed_features_matrix)
+        ),
+        fill = mutation_presence
+      ),
+      data = filter(
+        .data = heatmap_df,
+        direction == "greater"
+      ),
+      color = "#EBEBEB"
+    ) +
+    scale_x_discrete(limits = colnames(processed_features_matrix)) +
+    scale_fill_gradient(low = "#FFFFFF", high = "#847F9F") +
+    theme_cowplot() +
+    theme(
+      legend.position = "none",
+      plot.background = element_rect(fill = "white"),
+      axis.text.x = element_text(
+        face = "italic",
+        angle = 90,
+        vjust = 0.5,
+        hjust = 1
+      )
+    )
+
+  return(heatmap_plot)
+}
+
+figure_2C <- generate_heatmap_plot(.x = processed_features_matrix)
 
 list(
   ... = figure_2A,
@@ -309,80 +970,556 @@ list(
   ... = figure_2C
 )
 ```
-<br>
 
-We then perform a Bayesian latent class analysis (BLCA) to group
-lines based on their mutation profiles
+We then perform a Bayesian latent class analysis (BLCA). This analysis allows us to identify distinct mutation patterns associated with vancomycin selection and control conditions. We perform the BLCA on the processed mutation matrix, which includes only the features that were selected by the weighted elastic-net logistic regression. The BLCA will be run with a range of clusters to identify the optimal number based on the AIC.
+
+We use the results of the BLCA to construct a consensus matrix that represents the frequency of co-occurrence of mutations across the populations.
+
 ```{r }
+# --- Perform Bayesian Latent Class Analysis (BLCA) ---
+
+perform_blca <- function(
+    .x,
+    group_label,
+    iterations = BLCA_ITERATIONS,
+    num_clusters = BLCA_CLUSTERS,
+    num_cores = detectCores() - 1,
+    output_dir_data = "data/cluster_results",
+    output_dir_figs = "figures/cluster_plots") {
+  # BLCA function
+
+  blca_analysis <- function(data_matrix, group_label, num_clusters) {
+    group_matrix <- data_matrix[
+      grep(
+        pattern = group_label,
+        x = rownames(data_matrix)
+      ),
+    ]
+
+    # We only include genes that have a mutation in at least 3 populations
+    group_matrix <- group_matrix[, colSums(group_matrix) >= 3, drop = FALSE]
+
+    local_matrix <- group_matrix[
+      sample(
+        seq_len(nrow(group_matrix)),
+        size = ceiling(nrow(group_matrix) * 0.9),
+        replace = FALSE
+      ),
+      sample(
+        seq_len(ncol(group_matrix)),
+        size = ncol(group_matrix) * 0.9,
+        replace = FALSE
+      )
+    ]
+
+    tryCatch(
+      {
+        local_blca_res <- sapply(seq_len(num_clusters), simplify = FALSE, function(k) {
+          blca.em(
+            X = local_matrix,
+            G = k,
+            delta = 1.0,
+            alpha = 0.5,
+            beta = 0.5,
+            restarts = 10,
+            iter = 1000,
+            start.vals = "across"
+          )
+        })
+
+        best_k <- which.min(sapply(local_blca_res, function(x) { x$AIC }))
+        best_res <- local_blca_res[[best_k]]
+
+        if (best_k == 1) {
+          cluster_assign <- setNames(rep(1, nrow(local_matrix)), rownames(local_matrix))
+          return(cluster_assign)
+        } else if (!is.null(best_res$Z)) {
+          clust_assign_uniq <- apply(best_res$Z, 1, which.max)
+
+          # Need to match bitstring representations to observations
+          temp <- local_matrix[, match(colnames(best_res$itemprob), table = colnames(local_matrix))] # Match features just to be on the safe side
+          bit_str <- apply(local_matrix, 1, function(s) {
+            paste(s, collapse = "")
+          })
+          cluster_assign <- setNames(clust_assign_uniq[match(bit_str, table = names(clust_assign_uniq))], rownames(local_matrix))
+          return(cluster_assign)
+        } else {
+          return(NULL)
+        }
+        return(cluster_assign)
+      },
+      warning = function(cond) {
+        return("Warning")
+      },
+      error = function(cond) {
+        return(cond)
+      }
+    )
+  }
+
+  ## Parallelize the BLCA function ##
+  parallelize_blca <- function(input = NULL, group_label = NULL, num_clusters = NULL) {
+    # Detect number of cores and register parallel backend
+
+    require(parallel)
+    cl <- makeCluster(num_cores)
+    clusterExport(cl, varlist = c("blca_analysis", "input", "group_label", "num_clusters"), envir = environment())
+    blca_res_em <- parSapply(cl, 1:iterations, simplify = FALSE, function(i) {
+      require(BayesLCA)
+
+      temp <- blca_analysis(data_matrix = input, group_label = group_label, num_clusters = num_clusters)
+      return(temp)
+    })
+    stopCluster(cl)
+    return(blca_res_em)
+  }
+
+
+  # Function to construct the consensus matrices #
+  construct_frequency_matrix <- function(data_matrix, blca_res_em, group_label) {
+    group_matrix <- data_matrix[
+      grep(
+        pattern = group_label, # Group label corresponds to control or treated
+        x = rownames(data_matrix)
+      ),
+    ]
+
+    sorted_ids <- sort(
+      rownames(
+        group_matrix
+      )
+    )
+
+    pair_matrix <- Matrix(
+      data = 0,
+      ncol = length(sorted_ids),
+      nrow = length(sorted_ids),
+      dimnames = list(
+        sorted_ids,
+        sorted_ids
+      )
+    )
+
+    count_matrix <- pair_matrix
+
+    # Iterate over the LCA results to format the Consensus matrix.
+    # The frequency is the number of co-occurrences divided by the number
+    # of samples.
+
+    for (i in seq_len(length(blca_res_em))) {
+      local_res <- blca_res_em[[i]]
+
+      if (is.null(local_res) || all(is.na(local_res))) {
+        next
+      }
+
+      local_k <- max(local_res)
+
+      if (is.infinite(local_k)) {
+        next
+      }
+
+      local_clust <- as.matrix(
+        Matrix::Diagonal(
+          n = local_k + 1
+        )
+        [local_res, ]
+      )
+
+      local_clust <- local_clust %*% t(local_clust)
+
+      # Reorder
+      idx <- match(
+        sorted_ids,
+        table = names(local_res)
+      )
+
+      local_clust <- local_clust[idx, idx]
+      local_clust[is.na(local_clust)] <- 0
+      pair_matrix <- pair_matrix + local_clust
+
+      local_clust <- as.matrix(
+        Matrix::Diagonal(
+          n = 2
+        )
+        [rep(
+            x = 1,
+            length = length(local_res)
+          ), ]
+      )
+
+      local_clust <- local_clust %*% t(local_clust)
+
+      idx <- match(
+        sorted_ids,
+        table = names(local_res)
+      )
+
+      local_clust <- local_clust[idx, idx]
+      local_clust[is.na(local_clust)] <- 0
+      count_matrix <- count_matrix + local_clust
+    }
+
+    freq_matrix <- pair_matrix # Initialize
+    
+    # Get indices where count_matrix is not zero
+    valid_indices <- which(count_matrix > 0, arr.ind = TRUE)
+    
+    # Calculate frequency only for those indices
+    freq_matrix[valid_indices] <- pair_matrix[valid_indices] / count_matrix[valid_indices]
+    
+    freq_matrix <- Matrix::forceSymmetric(freq_matrix)
+    freq_matrix <- as.matrix(freq_matrix)
+
+    return(freq_matrix)
+  }
+
+
+  ## Hierarchical clustering and plotting function ##
+  plot_clusters <- function(data_matrix, freq_matrix, group_label) {
+    group_matrix <- data_matrix[
+      grep(
+        pattern = group_label, # Group label corresponds to control or treated
+        x = rownames(data_matrix)
+      ),
+    ]
+
+    # Perform hierarchical clustering on the distance matrix
+    dist_matrix <- as.dist(1.0 - freq_matrix)
+
+    hc <- hclust(
+      d = dist_matrix,
+      method = "ward.D2"
+    )
+
+    output_tag <- ifelse(group_label == "^C", "Control", "Vancomycin")
+
+    # Create directories if they don't exist
+    dir.create(
+      path = output_dir_data,
+      showWarnings = FALSE,
+      recursive = TRUE
+    )
+
+    dir.create(
+      path = output_dir_figs,
+      showWarnings = FALSE,
+      recursive = TRUE
+    )
+
+    cluster_colors <- setNames(
+      RColorBrewer::brewer.pal(
+        n = 7,
+        name = "Paired"
+      ),
+      paste0("Cluster-", 1:7)
+    )
+
+    for (k in c(2:7)) {
+      clust_assign <- cutree(
+        tree = hc,
+        k = k
+      )
+
+      clust_res <- data.frame(
+        "ID" = names(clust_assign),
+        "Cluster" = paste0("Cluster-", clust_assign)
+      )
+
+      write.csv(
+        x = clust_res,
+        file = file.path(
+          output_dir_data,
+          sprintf(
+            fmt = "ClusterResults_%s_K%s.csv",
+            ... = output_tag,
+            ... = k
+          )
+        ),
+        quote = FALSE,
+        row.names = FALSE
+      )
+
+      rowAnnot <- HeatmapAnnotation(
+        Cluster = clust_res$Cluster[
+          match(
+            rownames(freq_matrix),
+            table = clust_res$ID
+          )
+        ],
+        col = list(Cluster = setNames(
+          ggsci::pal_npg(palette = "nrc")(k),
+          paste0("Cluster-", 1:k)
+        )),
+        which = "row",
+        simple_anno_size = unit(3, "mm"),
+        show_annotation_name = FALSE
+      )
+
+      col_fun_freq <- colorRamp2(
+        breaks = seq(0, 1, 0.01),
+        colors = colorRampPalette(
+          colors = c("white", "#606B91")
+        )(
+          length(
+            seq(0, 1, 0.01)
+          )
+        )
+      )
+
+      h_ae <- Heatmap(
+        matrix = freq_matrix,
+        col = col_fun_freq,
+        cluster_rows = hc,
+        cluster_columns = hc,
+        show_column_names = TRUE,
+        show_row_names = TRUE,
+        show_column_dend = FALSE,
+        show_row_dend = FALSE,
+        na_col = "white",
+        heatmap_legend_param = list(
+          title = "Consensus Frequency",
+          title_position = "leftcenter-rot",
+          legend_height = unit(4, "cm"),
+          fontsize = 12
+        ),
+        show_heatmap_legend = TRUE,
+        use_raster = FALSE,
+        border = TRUE,
+        row_names_gp = gpar(fontsize = 6),
+        column_names_gp = gpar(fontsize = 6),
+        rect_gp = gpar(
+          lwd = 0.5,
+          col = "white"
+        ),
+        left_annotation = rowAnnot
+      )
+
+      col_fun <- colorRamp2(
+        breaks = seq(0, 1, 0.01),
+        colors = colorRampPalette(
+          colors = c("white", "grey30")
+        )(
+          length(
+            seq(0, 1, 0.01)
+          )
+        )
+      )
+
+      h_ae_mut <- Heatmap(
+        group_matrix[
+          match(
+            rownames(freq_matrix),
+            table = rownames(group_matrix)
+          ),
+        ],
+        col = col_fun,
+        clustering_method_rows = "ward.D2",
+        clustering_distance_rows = "manhattan",
+        cluster_rows = TRUE,
+        cluster_columns = TRUE,
+        show_column_names = TRUE,
+        show_row_names = TRUE,
+        show_column_dend = FALSE,
+        show_row_dend = FALSE,
+        na_col = "white",
+        show_heatmap_legend = FALSE,
+        use_raster = FALSE,
+        border = TRUE,
+        row_names_gp = gpar(fontsize = 6),
+        column_names_gp = gpar(fontsize = 6),
+        rect_gp = gpar(
+          lwd = 0.5,
+          col = "white"
+        )
+      )
+
+      h_comb <- h_ae + h_ae_mut
+
+      pdf(
+        file = file.path(
+          output_dir_figs,
+          sprintf(
+            fmt = "CC_Genomic_%s_K%s.pdf",
+            ... = output_tag,
+            ... = k
+          )
+        ),
+        width = 10,
+        height = 6
+      )
+
+      draw(h_comb)
+      dev.off()
+    }
+  }
+
+  ## Function calls ##
+  blca_res_em <- parallelize_blca(
+    input = .x,
+    group_label = group_label,
+    num_clusters = num_clusters
+  )
+
+  freq_matrix <- construct_frequency_matrix(
+    data_matrix = .x,
+    blca_res_em = blca_res_em,
+    group_label = group_label
+  )
+
+  plot_clusters(
+    data_matrix = .x,
+    freq_matrix = freq_matrix,
+    group_label = group_label
+  )
+
+  return(NULL)
+}
+
+
+# Create group-specific matrices
+vanc_blca_matrix <- mutation_matrix[, vanc_features]
+control_blca_matrix <- mutation_matrix[, control_features]
+
+# Run BLCA for the vancomycin group
 perform_blca(
-  .x = regression_and_plots,
-  iterations = 1000
+  .x = vanc_blca_matrix,
+  iterations = BLCA_ITERATIONS,
+  group_label = "^T" # Analyze only treated samples
 )
 
-# The best number of clusters was 2 based on AIC
-figure_S2_pdf <- image_read_pdf(
-  "Figures/cluster_plots/CC_Genomic_AIC_treatedOnly_K2.pdf",
-  density = 300
+# Run BLCA for the control group
+perform_blca(
+  .x = control_blca_matrix,
+  iterations = BLCA_ITERATIONS,
+  group_label = "^C" # Analyze only control samples
 )
-
-figure_S2_rasterized <- rasterGrob(
-  as.raster(figure_S2_pdf),
-  interpolate = TRUE
-)
-
-# Convert figure_4 to ggplot object
-figure_S2 <- ggplot() +
-  annotation_custom(grob = figure_S2_rasterized) +
-  theme_void()
-
-figure_S2
 ```
-<br>
 
-The latent class analysis (LCA) showed that the 18 VISA populations clustered
-into two distinct groups based on shared gene-level mutations. For instance,
-Cluster 1 was uniquely characterized by mutations in *rpsU* while notably
-lacking mutations in *yycH*. This mutual exclusivity was nonsignificant by
-Fisher's exact test (*P* = 0.0537). However, grouping of lines by the
-functional level shows near complete mutual exclusivity of *rpsU* and WalKR
-regulon mutations (Fisher's exact test, *P* = 0.0374)
+The latent class analysis (LCA) showed that the 18 VISA populations clustered into two distinct groups based on shared gene-level mutations. For instance, Cluster 1 was uniquely characterized by mutations in *rpsU* while notably lacking mutations in *yycH*. This mutual exclusivity was nonsignificant by Fisher's exact test (*P* = 0.0537). However, grouping of lines by the functional level shows near complete mutual exclusivity of *rpsU* and WalKR regulon mutations (Fisher's exact test, *P* = 0.0217).
 
 ```{r Fisher exact test}
 # Contingency table for yycH versus rpsU
 yycH_versus_rpsU <- matrix(c(0, 6, 6, 6), nrow = 2, byrow = TRUE)
-rownames(yycH_versus_rpsU) <- c("rpsU_Present", "rpsU_Absent")
-colnames(yycH_versus_rpsU) <- c("yycH_Present", "yycH_Absent")
+rownames(yycH_versus_rpsU) <- c("rpsU_present", "rpsU_absent")
+colnames(yycH_versus_rpsU) <- c("yycH_present", "yycH_absent")
+
+print(yycH_versus_rpsU)
 
 # Contingency table for WalKR regulon versus rpsU
 regulon_versus_rpsU <- matrix(c(2, 4, 12, 0), nrow = 2, byrow = TRUE)
-rownames(regulon_versus_rpsU) <- c("rpsU_Present", "rpsU_Absent")
-colnames(regulon_versus_rpsU) <- c("regulon_Present", "regulon_Absent")
+rownames(regulon_versus_rpsU) <- c("rpsU_present", "rpsU_absent")
+colnames(regulon_versus_rpsU) <- c("regulon_present", "regulon_absent")
+
+print(regulon_versus_rpsU)
+
+# Contingency table for arlR versus mgrA
+arlR_versus_mgrA <- matrix(c(2, 20, 11, 54), nrow = 2, byrow = TRUE)
+rownames(arlR_versus_mgrA) <- c("mgrA_present", "mgrA_absent")
+colnames(arlR_versus_mgrA) <- c("arlR_present", "arlR_absent")
+
+print(arlR_versus_mgrA)
 
 list(
   ... = fisher.test(yycH_versus_rpsU),
-  ... = fisher.test(regulon_versus_rpsU)
+  ... = fisher.test(regulon_versus_rpsU),
+  ... = fisher.test(arlR_versus_mgrA)
 )
 ```
-<br>
 
-***
+------------------------------------------------------------------------
 
 # S. aureus populations exhibit variable collateral sensitivity to first-line therapies after vancomycin exposure
 
-```{r Collateral drug MIC data}
-# Data report the MICs of 8 antibiotics -- cefazolin, clindamycin, daptomycin,
-# gentamycin, meropenem, nafcillin, trimethoprim-sulfamethoxazole, and
-# vancomycin -- on the MSSA ancestral clone ATCC 29213 and evolved
-# vancomycin-intermediate populations.
+The following data report the MICs of 8 antibiotics -- cefazolin, clindamycin, daptomycin, gentamycin, meropenem, nafcillin, trimethoprim-sulfamethoxazole, and vancomycin -- on the MSSA ancestral clone ATCC 29213 and evolved vancomycin-intermediate populations. We quantified the collateral response of an evolved population as the difference in its $\text{log}_2$-transformed MIC relative to the ancestral clone. A population is collaterally resistant when its MIC is higher than the ancestral MIC and collaterally sensitive when it is lower.
 
+We use these data to evaluate whether genomic differences that evolved during vancomycin adaptation shape drug tradeoffs.
+
+```{r Collateral drug MIC data}
 collateral_MICs <- read_csv(
-  file = "data/collateral_drug_MICs.csv",
+  file = input_collateral_MICs,
   show_col_types = FALSE
 )
 ```
-<br>
 
 ```{r Perform analyses on collateral response data, messages = FALSE}
+# --- Function that calculates collateral response values ---
+
+calculate_collateral_responses <- function(.x) {
+  # This function takes a data frame of MICs and calculates drug response
+  # values for each evolved population relative to the ancestral population.
+  ancestor_frame <- .x %>%
+    filter(population == "Ancestor")
+
+  evolved_frame <- .x %>%
+    filter(population != "Ancestor")
+
+  CR_values <- c()
+
+  # This code chunk iterates through the unique paired_IDs in the
+  # evolved_frame and filters the ancestor_frame and evolved_frame for the
+  # paired_ID. The MIC values for the ancestor and evolved populations are
+  # then used to calculate the collateral response value for each evolved
+  # population. The collateral response values are then appended to the
+  # CR_values vector.
+  for (i in unique(evolved_frame$paired_ID)) {
+    ancestor_value <- ancestor_frame %>%
+      filter(paired_ID == i) %>%
+      pull(MIC)
+
+    evolved_subframe <- evolved_frame %>%
+      filter(paired_ID == i)
+
+    for (j in 1:nrow(evolved_subframe)) {
+      evolved_value <- evolved_subframe[j, ] %>%
+        pull(MIC)
+
+      CR_values <- c(CR_values, log2(evolved_value / ancestor_value))
+    }
+  }
+
+  # Creates a tibble of collateral response values
+  CR_col <- tibble(CR = CR_values)
+  CR_df <- bind_cols(
+    ... = evolved_frame,
+    ... = CR_col
+  )
+
+  # Remove paired_ID column
+  CR_df <- CR_df %>%
+    dplyr::select(-paired_ID)
+
+  return(CR_df)
+}
+
+
+# --- Function that performs summary statistics on collateral responses ---
+
+perform_summary_stats <- function(.x) {
+  summary_stats <- .x %>%
+    group_by(antibiotic, population) %>%
+    summarize(
+      mean_MIC = mean(MIC),
+      mean_CR = mean(CR)
+    )
+
+  # Create a new column called "state" in the summary_stats data frame.
+  # Populate this column with "-1", "0", or " 1" if the mean collateral
+  # response value is less than, equal to, or greater than 0.
+  summary_stats$state <- ifelse(
+    test = summary_stats$mean_CR < 0,
+    yes = "-1",
+    no = ifelse(
+      test = summary_stats$mean_CR == 0,
+      yes = "0",
+      no = "1"
+    )
+  )
+
+  return(summary_stats)
+}
+
+
 # Calculates collateral responses
 collateral_responses <- calculate_collateral_responses(.x = collateral_MICs)
 
@@ -394,7 +1531,6 @@ list(
   collateral_responses_summary = CR_summary_stats
 )
 ```
-<br>
 
 ```{r Plot collateral response values}
 figure_3B <- CR_summary_stats %>%
@@ -424,7 +1560,15 @@ figure_3B <- CR_summary_stats %>%
       factor(
         c("DAP", "VAN", "CFZ", "SXT", "CLI", "MEM", "NAF", "GEN")
       ),
-      position = "top"
+    position = "top"
+  ) +
+  scale_y_discrete(
+    limits =
+      factor(
+        rev(
+          c(4, 5, 6, 7, 8, 11, 14, 15, 16, 17, 18, 1, 2, 3, 10, 12, 13, 9)
+        )
+      )
   ) +
   ylab("Population") +
   xlab("Antibiotic") +
@@ -439,16 +1583,117 @@ figure_3B <- CR_summary_stats %>%
     axis.ticks = element_blank()
   )
 
+
+
+# --- Function to plot collateral responses (Figure 3C) ---
+
+generate_CR_plot <- function(.x) {
+  # Factor antibiotics by order of decreasing median collateral response
+  antibiotic_factor <- .x %>%
+    group_by(antibiotic) %>%
+    summarize(med = median(mean_CR)) %>%
+    arrange(
+      desc(med)
+    ) %>%
+    pull(antibiotic)
+
+  .x$antibiotic <- factor(
+    x = .x$antibiotic,
+    levels = as.factor(antibiotic_factor)
+  )
+
+  CR_boxplot <- .x %>%
+    ggplot(
+      aes(
+        x = antibiotic,
+        y = mean_CR,
+        fill = antibiotic
+      )
+    ) +
+    geom_boxplot(outlier.shape = 1) +
+    geom_hline(
+      yintercept = 0,
+      linetype = "dashed",
+      color = "#000000"
+    ) +
+    xlab("Antibiotic") +
+    ylab(
+      expression(
+        "Log"[2] ~ "-" ~ "relative MIC"
+      )
+    ) +
+    scale_fill_manual(
+      values = c(
+        "#db8f81", "#df998b", "#fae7e3", "#FFFFFF",
+        "#f2f3f8", "#ececf5", "#dbddec", "#d1d4e7"
+      )
+    ) +
+    theme_cowplot() +
+    theme(
+      legend.position = "none",
+      plot.background = element_rect(fill = "white")
+    )
+
+  return(CR_boxplot)
+}
+
+
 figure_3C <- generate_CR_plot(
   .x = CR_summary_stats
 )
-```
-<br>
 
-We used Mann-Whitney U tests to compare the collateral response values of
-the evolved populations to the ancestral population for each antibiotic.
+list(
+  figure_3B = figure_3B,
+  figure_3C = figure_3C
+)
+```
+
+We used Mann-Whitney U tests to compare the collateral response values of the evolved populations to the ancestral population for each antibiotic.
 
 ```{r Perform Mann Whitney U tests}
+# --- Function that performs Mann-Whitney U tests on collateral response values ---
+
+perform_MW_test <- function(.data, ab) {
+  ancestor_df <- .data %>%
+    filter(population == "Ancestor" & antibiotic == ab) %>%
+    dplyr::select(
+      ... = -replicate,
+      ... = -paired_ID
+    )
+
+  evolved_df <- .data %>%
+    filter(population != "Ancestor" & antibiotic == ab) %>%
+    group_by(population) %>%
+    # Calculate the mean MIC for each evolved population
+    summarize(MIC = mean(MIC)) %>%
+    # Relabel all entries in the "population" column to "Evolved"
+    mutate(
+      population = ifelse(
+        population == "Ancestor",
+        yes = "Ancestor",
+        no = "Evolved"
+      )
+    )
+
+  # Bind the antibiotic_df and ancestor_df objects
+  bound_df <- bind_rows(
+    ... = evolved_df,
+    ... = ancestor_df
+  )
+
+  # Perform Mann Whitney U test comparing the MICs of the ancestor and
+  # evolved populations
+  MW_test <- wilcox.test(
+    formula = MIC ~ population,
+    data = bound_df,
+    exact = FALSE,
+    correct = FALSE,
+    alternative = "two.sided"
+  )
+
+  return(MW_test)
+}
+
 mw_stats <- map(
   unique(collateral_MICs$antibiotic),
   ~ perform_MW_test(
@@ -482,13 +1727,89 @@ names(mw_p_adjusted) <- mw_pvals$antibiotic
 
 mw_p_adjusted
 ```
-<br>
 
-We can combine the collateral response and genomic data obtained from each
-population to evaluate whether genomic differences that evolved during
-vancomycin adaptation shape drug tradeoffs.
+We can combine the collateral response and genomic data obtained from each population to evaluate whether genomic differences that evolved during vancomycin adaptation shape drug tradeoffs.
 
 ```{r Biserial correlation with WalKR regulon mutated lines}
+# --- Function to perform biserial correlation analysis ---
+
+biserial_correlation <- function(.data, lines, ab) {
+  if (length(lines) == 12) {
+    .data <- .data %>%
+      filter(!population %in% c(1, 2))
+  }
+
+  .data$mutated <- ifelse(
+    .data$population %in% lines,
+    "1",
+    "0"
+  )
+
+  ab_frame <- .data %>%
+    filter(antibiotic == ab)
+
+  mutated <- ab_frame %>%
+    pull(mutated)
+
+  mean_CR <- ab_frame %>%
+    pull(mean_CR)
+
+  results <- cor.test(
+    x = mean_CR,
+    y = as.numeric(mutated)
+  )
+
+  return(results)
+}
+
+# Helper function
+perform_biserial_correlation <- function(.data) {
+  antibiotic_vector <- c("CFZ", "MEM", "NAF", "GEN")
+
+  regulon_lines <- c(4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18)
+  yycHI_lines <- c(4, 5, 6, 7, 9, 16, 18)
+  rpsU_lines <- c(3, 10, 12, 13)
+
+  regulon_results <- map(
+    .x = antibiotic_vector,
+    ~ biserial_correlation(
+      .data = .data,
+      lines = regulon_lines,
+      ab = .x
+    )
+  )
+
+  yycHI_results <- map(
+    .x = antibiotic_vector,
+    ~ biserial_correlation(
+      .data = .data,
+      lines = yycHI_lines,
+      ab = .x
+    )
+  )
+
+  rpsU_results <- map(
+    .x = antibiotic_vector,
+    ~ biserial_correlation(
+      .data = .data,
+      lines = rpsU_lines,
+      ab = .x
+    )
+  )
+
+  names(regulon_results) <- antibiotic_vector
+  names(yycHI_results) <- antibiotic_vector
+  names(rpsU_results) <- antibiotic_vector
+
+  return(
+    list(
+      regulon_results = regulon_results,
+      yycHI_results = yycHI_results,
+      rpsU_results = rpsU_results
+    )
+  )
+}
+
 biserial_results <- perform_biserial_correlation(.data = CR_summary_stats)
 
 
@@ -505,17 +1826,16 @@ rpsU_p_adjusted <- p.adjust(
 list(
   biserial_results = biserial_results,
   regulon_p_adjusted = regulon_p_adjusted,
-  yycHI_p = biserial_results$yycHI_results$NAF$p.value,
+  yycH_p = biserial_results$yycH_results$NAF$p.value,
   rpsU_p_adjusted = rpsU_p_adjusted
 )
 ```
-<br>
 
 ```{r Regulon plot}
 figure_3D <- CR_summary_stats %>%
   filter(antibiotic %in% c("CFZ", "MEM", "NAF", "GEN")) %>%
   # Remove populations that have both regulon and rpsU mutations
-  filter(!population %in% c(1, 2)) %>% 
+  filter(!population %in% c(1, 2)) %>%
   mutate(
     regulon = ifelse(
       population %in% c(4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18),
@@ -555,7 +1875,6 @@ figure_3D <- CR_summary_stats %>%
 
 figure_3D
 ```
-<br>
 
 ```{r yycH plot}
 figure_3E <- CR_summary_stats %>%
@@ -587,7 +1906,7 @@ figure_3E <- CR_summary_stats %>%
     )
   ) +
   scale_fill_manual(
-    labels = c("No yycHI mutations", "yycHI mutations"),
+    labels = c("No yycH mutations", "yycH mutations"),
     values = c("#FFFFFF", "#C2C2C2")
   ) +
   theme_cowplot() +
@@ -599,18 +1918,9 @@ figure_3E <- CR_summary_stats %>%
   )
 
 figure_3E
-
-
 ```
-<br>
 
-Now, we first estimate the bootstrap distribution of collateral response
-scores (CRS) for each antibiotic and mutational pathway. The CSS metric
-evaluates the net collateral effect of antibiotic exposure by integrating both
-the magnitude and direction of changes in MIC, providing a robust metric for
-evaluating the likelihood of collateral sensitivity or resistance. This score
-is amenable to statistical investigation and provides a standardized way of
-reporting this information for clinical decision-making. The CSS is defined as,
+Now, we first estimate the bootstrap distribution of collateral response scores (CRS) for each antibiotic and mutational pathway. The CSS metric evaluates the net collateral effect of antibiotic exposure by integrating both the magnitude and direction of changes in MIC, providing a robust metric for evaluating the likelihood of collateral sensitivity or resistance. This score is amenable to statistical investigation and provides a standardized way of reporting this information for clinical decision-making. The CSS is defined as,
 
 $$\text{CSS} = \frac{\frac{1}{N} \sum_{i=1}^{N} \log_2\left
 (\frac{\mathrm{MIC}_{i,\text{evolved}}}{\mathrm{MIC}_
@@ -621,11 +1931,345 @@ $$\text{CSS} = \frac{\frac{1}{N} \sum_{i=1}^{N} \log_2\left
 where *N* is the number of replicate populations, *i*.
 
 ```{r Compute CSS distributions}
-css_bootstrap_results <- perform_bootstrap_and_plot_css(
-  .x = CR_summary_stats,
-  iterations = 100
-)
+# Function that computes bootstrap collateral response scores (CRS) and
+# percentile-based confidence intervals for each drug and mutational pathway
+# and plots these distributions.
+
+perform_bootstrap_and_plot_css <- function(.x, groups, iterations = CRS_ITERATIONS) {
+  # Function to perform bootstrap analysis
+  perform_bootstrap <- function(data, groups, iterations) {
+    # CSS = (mean collateral response / max |collateral response|)
+    css_stat <- function(data, indices) {
+      d <- data[indices]
+      mean_val <- mean(d)
+      max_val <- max(abs(d))
+      css <- mean_val / max_val
+      return(css)
+    }
+
+    resampling <- function(df, R) {
+      boot_obj <- boot(
+        data = df$mean_CR,
+        statistic = css_stat,
+        R = R
+      )
+
+      # Extract raw bootstrap replicates
+      raw_boot <- data.frame(CSS = boot_obj$t[, 1])
+      raw_boot$replicate <- seq_len(nrow(raw_boot))
+
+      for (g in groups) {
+        raw_boot[[g]] <- unique(df[[g]])
+      }
+
+      # Compute percentile-based confidence intervals
+      ci_obj <- boot.ci(
+        boot.out = boot_obj,
+        type = "perc"
+      )
+
+      lower_perc <- ci_obj$percent[4]
+      upper_perc <- ci_obj$percent[5]
+
+      # Compute point estimate
+      point_est <- css_stat(
+        data = df$mean_CR,
+        indices = 1:length(df$mean_CR)
+      )
+
+      raw_boot$lower_perc <- lower_perc
+      raw_boot$upper_perc <- upper_perc
+      raw_boot$point_est <- point_est
+
+      return(raw_boot)
+    }
+
+    results <- data %>%
+      group_by(across(all_of(groups))) %>%
+      do(
+        resampling(
+          df = .,
+          R = iterations
+        )
+      ) %>%
+      ungroup()
+
+    return(results)
+  }
+
+  # Function to create three ridgeline plots given the original data.
+  # It computes bootstrap results for:
+  # 1. Grouping by antibiotic only,
+  # 2. Grouping by cluster only,
+  # 3. Grouping by both antibiotic and cluster.
+
+  generate_plots <- function(data, iterations) {
+    # Bootstrap results for different grouping schemes.
+    boot_res_ab <- perform_bootstrap(
+      data = data,
+      groups = c("antibiotic"),
+      iterations = iterations
+    )
+
+    boot_res_cluster <- perform_bootstrap(
+      data = data,
+      groups = c("cluster"),
+      iterations = iterations
+    )
+
+    boot_res_both <- perform_bootstrap(
+      data = data,
+      groups = c("antibiotic", "cluster"),
+      iterations = iterations
+    )
+
+    # Create a numeric representation and offset only for segments/points.
+    boot_res_both <- boot_res_both %>%
+      mutate(
+        antibiotic_numeric = as.numeric(factor(antibiotic, levels = unique(antibiotic))),
+        y_offset = antibiotic_numeric + if_else(as.factor(cluster) == "0", -0.2, -0.1)
+      )
+
+    # Summarize data for segments and points.
+    summary_data <- boot_res_both %>%
+      group_by(antibiotic, cluster) %>%
+      summarize(
+        lower = unique(lower_perc),
+        upper = unique(upper_perc),
+        point_est = unique(point_est),
+        y_offset = unique(y_offset),
+        .groups = "drop"
+      )
+
+    ## Plot 1: By antibiotic only.
+    plot_ab <- ggplot(
+      data = boot_res_ab,
+      aes(
+        x = CSS,
+        y = fct_reorder(antibiotic, point_est)
+      )
+    ) +
+      geom_density_ridges(
+        # alpha = 0.5,
+        scale = 1.2,
+        fill = "#c2c2c2",
+        color = "black"
+      ) +
+      geom_segment(
+        data = boot_res_ab %>%
+          group_by(antibiotic) %>%
+          summarize(
+            lower = unique(lower_perc),
+            upper = unique(upper_perc),
+            .groups = "drop"
+          ),
+        aes(
+          x = lower,
+          xend = upper,
+          y = antibiotic,
+          yend = antibiotic
+        ),
+        color = "#7A7A7A",
+        linewidth = 1
+      ) +
+      geom_point(
+        data = boot_res_ab %>%
+          group_by(antibiotic) %>%
+          summarize(
+            mean_css = unique(point_est),
+            .groups = "drop"
+          ),
+        aes(
+          x = mean_css,
+          y = antibiotic
+        ),
+        color = "#7A7A7A",
+        size = 3
+      ) +
+      scale_x_continuous(
+        limits = c(-1, 1),
+        breaks = seq(-1, 1, 0.25)
+      ) +
+      labs(
+        x = "Collateral Response Score (CSS)",
+        y = "Antibiotic"
+      ) +
+      theme_cowplot() +
+      theme(
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        legend.position = "none",
+        axis.text.y = element_text(size = 12)
+      )
+
+    ## Plot 2: By cluster only.
+    plot_cluster <- ggplot(
+      data = boot_res_cluster,
+      aes(
+        x = CSS,
+        y = fct_reorder(
+          as.factor(cluster),
+          point_est
+        ),
+        fill = as.factor(cluster)
+      )
+    ) +
+      geom_density_ridges(
+        alpha = 0.5,
+        scale = 1.2,
+        color = "black"
+      ) +
+      geom_segment(
+        data = boot_res_cluster %>%
+          group_by(cluster) %>%
+          summarize(
+            lower = unique(lower_perc),
+            upper = unique(upper_perc),
+            .groups = "drop"
+          ),
+        aes(
+          x = lower,
+          xend = upper,
+          y = cluster,
+          yend = cluster,
+          color = as.factor(cluster)
+        ),
+        linewidth = 1
+      ) +
+      geom_point(
+        data = boot_res_cluster %>%
+          group_by(cluster) %>%
+          summarize(
+            mean_css = unique(point_est),
+            .groups = "drop"
+          ),
+        aes(
+          x = mean_css,
+          y = cluster,
+          color = as.factor(cluster)
+        ),
+        size = 3
+      ) +
+      labs(
+        x = "Collateral Response Score (CRS)",
+        y = "Cluster"
+      ) +
+      scale_x_continuous(
+        limits = c(-1, 1),
+        breaks = seq(-1, 1, 0.25)
+      ) +
+      scale_y_discrete(labels = rev(c("rpsU mutations", "Regulon mutations"))) +
+      scale_color_manual(
+        values = c("#83B9D8", "#A2B9B5")
+      ) +
+      scale_fill_manual(
+        values = c("#83B9D8", "#A2B9B5")
+      ) +
+      theme_cowplot() +
+      theme(
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        legend.position = "none",
+        axis.text.y = element_text(size = 12)
+      )
+
+    ## Plot 3: By antibiotic and cluster.
+    plot_both <- ggplot() +
+      # Density ridges centered on the antibiotic factor.
+      geom_density_ridges(
+        data = boot_res_both,
+        aes(
+          x = CSS,
+          y = antibiotic, # use factor for centering
+          fill = as.factor(cluster)
+        ),
+        alpha = 0.5,
+        scale = 1.2,
+        color = "black"
+      ) +
+      # Segments offset using y_offset.
+      geom_segment(
+        data = summary_data,
+        aes(
+          x = lower,
+          xend = upper,
+          y = y_offset,
+          yend = y_offset,
+          color = as.factor(cluster)
+        ),
+        linewidth = 1
+      ) +
+      # Points offset using y_offset.
+      geom_point(
+        data = summary_data,
+        aes(
+          x = point_est,
+          y = y_offset,
+          color = as.factor(cluster)
+        ),
+        size = 3
+      ) +
+      scale_fill_manual(
+        values = c("#83B9D8", "#A2B9B5"),
+        labels = c("rpsU mutations", "Regulon mutations")
+      ) +
+      scale_color_manual(
+        values = c("#83B9D8", "#A2B9B5")
+      ) +
+      scale_x_continuous(
+        limits = c(-1, 1),
+        breaks = seq(-1, 1, 0.25)
+      ) +
+      # #scale_y_discrete(
+      #   breaks = unique(boot_res_both$antibiotic_numeric),
+      #   labels = unique(boot_res_both$antibiotic),
+      #   name = "Antibiotic"
+      # ) +
+      labs(
+        x = "Collateral Response Score (CSS)",
+        y = "Antibiotic",
+        fill = "Cluster"
+      ) +
+      theme_cowplot() +
+      theme(
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text.y = element_text(size = 12)
+      )
+
+    return(
+      results_list <- list(
+        antibiotic_results = boot_res_ab,
+        cluster_results = boot_res_cluster,
+        both_results = boot_res_both,
+        antibiotic_plot = plot_ab,
+        cluster_plot = plot_cluster,
+        both_plot = plot_both
+      )
+    )
+  }
+
+  # WalKR regulon
+  cluster <- c(4, 5, 6, 7, 8, 9, 11, 14, 15, 16, 17, 18)
+
+  .x <- .x %>%
+    filter(!population %in% c(1, 2)) # Remove populations 1 and 2
+
+  .x$cluster <- ifelse(
+    .x$population %in% cluster,
+    "1", # WalKR regulon
+    "0" # rpsU mutations
+  )
+
+  plots <- generate_plots(
+    data = .x,
+    iterations = iterations
+  )
+
+  return(plots)
+}
+
+css_bootstrap_results <- perform_bootstrap_and_plot_css(.x = CR_summary_stats)
 
 css_bootstrap_results
 ```
-<br>
