@@ -14,13 +14,13 @@ This repository contains:
 - Curated variant summaries and clustering results from the Bayesian latent-class analysis.
 - Final figures as PDF/TIF.
 
-If you only want to browse results, open the rendered notebook HTML: `S_aureus_evolution.nb.html`.
+If you only want to browse results, open the rendered notebook markdown: `S_aureus_evolution.md`.
 
 
 ## Repository layout
 
 - `S_aureus_evolution.Rmd` — Primary analysis notebook (R Markdown). Produces the summary statistics and figures.
-- `S_aureus_evolution.nb.html` — Rendered HTML of the notebook for quick viewing.
+- `S_aureus_evolution.md` — Rendered markdown of the notebook for quick viewing.
 - `data/` — Input and output data for/from the R Notebook.
 	- `vancomycin_MICs.csv` — Vancomycin MIC time series for 18 evolving populations. **Input**
 	- `collateral_drug_MICs.csv` — MICs for 8 antibiotics measured on ancestor and evolved lines (for collateral response analyses). **Input**
@@ -144,7 +144,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocMana
 BiocManager::install("ComplexHeatmap")
 ```
 
-Render the Notebook to GitHub-flavored markdown/HTML (Windows PowerShell example):
+Render the Notebook to GitHub-flavored markdown (Windows PowerShell example):
 
 ```powershell
 # From the repository root
@@ -209,7 +209,7 @@ Manual curation: The repository includes a curated variant summary (`data/varian
 
 If you want to:
 
-- Browse results: open `S_aureus_evolution.nb.html`.
+- Browse results: open `S_aureus_evolution.md`.
 - Inspect input data: see the `data/` folder and dictionaries above.
 - Re-render analyses: install R packages and render `S_aureus_evolution.Rmd`.
 - Reprocess raw reads: use the `sequencing_pipeline/` scripts on Linux/WSL.
@@ -219,7 +219,7 @@ If you want to:
 
 If you use this code or data, please cite the associated manuscript:
 
-Card K., Crozier D., et al. (2025). Evolution under vancomycin selection drives divergent collateral sensitivity patterns in Staphylococcus aureus. [Manuscript].
+K. Card, D. Crozier, *et al.* (2025). Evolution under vancomycin selection drives divergent collateral sensitivity patterns in Staphylococcus aureus. [Manuscript].
 
 An updated citation with DOI will be added upon publication. You may also cite this repository’s specific commit if referencing code.
 
