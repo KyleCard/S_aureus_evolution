@@ -1,24 +1,25 @@
 # Evolution under vancomycin selection drives divergent collateral sensitivity patterns in <i>Staphylococcus aureus</i>
 
----
-
 **Authors**: Kyle Card and Arda Durmaz
 
 **Last revised**: 8/9/2025
 
-**Description**: In this study, we investigate how <i>Staphylococcus aureus</i>
-evolution under vancomycin selection affects its susceptibilities to several
-first-line antibiotics. We examined the genetic basis of these changes using
-whole-genome sequencing and identified key mutations associated with altered
-antibiotic resistance. Our findings provide insights into the mechanisms
-underlying collateral sensitivity and highlight the potential for exploiting
-these patterns in clinical settings.
+**Description**: In this study, we investigate how <i>Staphylococcus
+aureus</i> evolution under vancomycin selection affects its
+susceptibilities to several first-line antibiotics. We examined the
+genetic basis of these changes using whole-genome sequencing and
+identified key mutations associated with altered collateral responses.
+Our findings provide insights into the mechanisms underlying collateral
+sensitivity and highlight the potential for exploiting these patterns in
+clinical settings.
 
-The following code implements the analysis pipeline described in the study.
+The following code implements the analysis pipeline described in the
+study.
 
-**Citation**: K. Card, D. Crozier, *et al.* (2025). Evolution under vancomycin selection
-drives divergent collateral sensitivity patterns in <i>Staphylococcus aureus</i>.
-*bioRxiv*, doi: [https://doi.org/10.1101/2023.11.30.569373](https://doi.org/10.1101/2023.11.30.569373).
+**Citation**: K. Card, D. Crozier, *et al.* (2025). Evolution under
+vancomycin selection drives divergent collateral sensitivity patterns in
+<i>Staphylococcus aureus</i>. *bioRxiv*, doi:
+<https://doi.org/10.1101/2023.11.30.569373>.
 
 ## Prerequisites - required packages, file paths, and parameters
 
@@ -1818,7 +1819,7 @@ list(
 
 ------------------------------------------------------------------------
 
-# Divergent genetic pathways under vancomycin exposure led to varied collateral responses 
+# Divergent genetic pathways under vancomycin exposure led to varied collateral responses
 
 The following data report the MICs of 8 antibiotics – cefazolin,
 clindamycin, daptomycin, gentamycin, meropenem, nafcillin,
