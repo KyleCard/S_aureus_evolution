@@ -10,6 +10,7 @@ This repository contains:
 
 - An R Notebook that loads curated variant calls and MIC measurements, performs statistical analyses, and renders the figures.
 - Bash/Python pipeline scripts used to process short-read sequencing data with *breseq* and summarize read-level support for variants.
+	- We deposited all *breseq* data, including raw HTML outputs, FASTA files, Variant Call Format (VCF) files, Binary Alignment Map (BAM) files, and GenomeDiff files for all samples in the [Dryad Digital Repository](http://datadryad.org/share/P5-zlNn6ad1LO6z90cSFSHoNlK6DtANIPrCihVYleiw) (DOI: 10.5061/dryad.qnk98sfw2).
 - MIC and curated variant files as input data for the R Notebook.
 - Curated variant summaries and clustering results from the Bayesian latent-class analysis.
 - Final figures as PDF/TIF.
@@ -22,23 +23,24 @@ If you only want to browse results, open the rendered notebook markdown: `S_aure
 - `S_aureus_evolution.Rmd` — Primary analysis notebook (R Markdown). Produces the summary statistics and figures.
 - `S_aureus_evolution.md` — Rendered markdown of the notebook for quick viewing.
 - `data/` — Input and output data for/from the R Notebook.
-	- `vancomycin_MICs.csv` — Vancomycin MIC time series for 18 evolving populations. **Input**
-	- `collateral_drug_MICs.csv` — MICs for 8 antibiotics measured on ancestor and evolved lines (for collateral response analyses). **Input**
-	- `mutations.csv` — Curated mutation calls (gene-level and metadata) used in the genomic analyses. **Input**
+	- `vancomycin_MICs.csv` — Vancomycin MIC time series for 18 evolving populations. **(Input)**
+	- `collateral_drug_MICs.csv` — MICs for 8 antibiotics measured on ancestor and evolved lines (for collateral response analyses). **(Input)**
+	- `mutations.csv` — Curated mutation calls (gene-level and metadata) used in the genomic analyses. **(Input)**
 	- `variant_analysis/` — Outputs from read-level validation of variant calls:
 		- `all_supporting_reads.tsv` — One row per read supporting a variant.
 		- `variant_summary.tsv` — One row per variant per sample with coverage and support counts.
 		- `variant_summary_curated.tsv` — Manually curated variant summary used downstream.
-	- `cluster_results/` — Clustering assignments (K = 2 – 7) for control and vancomycin groups from BLCA consensus clustering. **Output**
+	- `cluster_results/` — Clustering assignments (K = 2 – 7) for control and vancomycin groups from BLCA consensus clustering. **(Output)**
 - `figures/` — Final figures used in the manuscript.
 	- Figures: `figure_1.pdf`, `figure_2.pdf`, `figure_3.pdf`, `figure_4.pdf`, `figure_S1.tif`, `figure_S2.tif`.
 	- Cluster plots in `figures/cluster_plots/`.
 - `sequencing_pipeline/` — Scripts to process raw reads and summarize variant support:
 	- `1_trimmomatic.sh` — Quality trim paired-end reads.
 	- `2_generate_updated_reference.sh` — Call ancestor vs ATCC_29213 and apply differences to create an updated reference.
-	- `3_map_sequences.sh` — Run breseq (polymorphism mode) on experimental and control lines.
+	- `3_map_sequences.sh` — Run *breseq* (polymorphism mode) on experimental and control lines.
 	- `4_identify_reads_supporting_variants.sh` — Extract BAM reads overlapping variant sites with samtools.
 	- `5_summarize_base_qualities.py` — Parse supporting reads and compute per-variant support/quality summaries with pysam.
+- `S_aureus_evolution_files/figure-gfm/` — Knitted figures for GitHub rendering.
 
 
 ## Data dictionaries
@@ -162,7 +164,7 @@ These scripts are designed for a Unix-like environment (Linux or Windows 11 with
 
 Dependencies and versions used in scripts:
 - Trimmomatic 0.39
-- breseq 0.39.0 (includes `gdtools`)
+- *breseq* 0.39.0 (includes `gdtools`)
 - samtools 1.21
 - Python 3.8+ with `pysam`
 
@@ -178,7 +180,7 @@ bash sequencing_pipeline/1_trimmomatic.sh
 bash sequencing_pipeline/2_generate_updated_reference.sh
 ```
 
-3) Map experimental and control lines with breseq (polymorphism mode)
+3) Map experimental and control lines with *breseq* (polymorphism mode)
 ```bash
 bash sequencing_pipeline/3_map_sequences.sh
 ```
@@ -219,7 +221,7 @@ If you want to:
 
 If you use this code or data, please cite the associated manuscript:
 
-K. Card, D. Crozier, *et al.* (2025). Evolution under vancomycin selection drives divergent collateral sensitivity patterns in Staphylococcus aureus. [Manuscript].
+K. Card, D. Crozier, *et al.*, Evolution under vancomycin selection drives divergent collateral sensitivity patterns in *Staphylococcus aureus*. bioRxiv (2025). DOI: 10.1101/2023.11.30.569373
 
 An updated citation with DOI will be added upon publication. You may also cite this repository’s specific commit if referencing code.
 
