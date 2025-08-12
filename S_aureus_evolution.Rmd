@@ -13,7 +13,7 @@ output: rmarkdown::github_document
 evolution under vancomycin selection affects its susceptibilities to several
 first-line antibiotics. We examined the genetic basis of these changes using
 whole-genome sequencing and identified key mutations associated with altered
-antibiotic resistance. Our findings provide insights into the mechanisms
+collateral responses. Our findings provide insights into the mechanisms
 underlying collateral sensitivity and highlight the potential for exploiting
 these patterns in clinical settings.
 
