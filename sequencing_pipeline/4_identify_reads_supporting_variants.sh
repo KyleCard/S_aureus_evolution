@@ -8,8 +8,8 @@
 # reads in the BAM file that cover this position and show the alternative allele.
 
 # The BAM and VCF files are outputted by the breseq pipeline and are located in the
-# ../breseq_output/experimental_lines/S"$i"/data directory for experimental lines and
-# ../breseq_output/control_lines/C"$i"/data for control lines.
+# ../breseq_output/experimental_lines/VAN_"$i"/data directory for experimental lines and
+# ../breseq_output/control_lines/CTL_"$i"/data for control lines.
 
 # The VCF file is named "output.vcf" and the BAM file is named "reference.bam".
 
@@ -33,12 +33,12 @@ extract_reads() {
     samtools index "$outdir/supporting_reads.sorted.bam"
 }
 
-# Experimental lines S1–S18
+# Experimental lines VAN_1–VAN_18
 for i in {1..18}; do
-    extract_reads "../breseq_output/experimental_lines/S${i}/data"
+    extract_reads "../breseq_output/experimental_lines/VAN_${i}/data"
 done
 
-# Control lines C1–C87
+# Control lines CTL_1–CTL_87
 for i in {1..87}; do
-    extract_reads "../breseq_output/control_lines/C${i}/data"
+    extract_reads "../breseq_output/control_lines/CTL_${i}/data"
 done

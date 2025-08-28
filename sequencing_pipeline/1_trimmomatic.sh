@@ -69,10 +69,10 @@ do
         -threads 24 \
         ../raw_reads/experimental_lines/S"$i"_R1_001.fastq.gz \
         ../raw_reads/experimental_lines/S"$i"_R2_001.fastq.gz \
-        ../trimmed_read_files/paired_forward_reads/experimental_lines/S"$i"_R1_001.fastq.gz \
-        ../trimmed_read_files/unpaired_forward_reads/experimental_lines/S"$i"_R1_001.fastq.gz \
-        ../trimmed_read_files/paired_reverse_reads/experimental_lines/S"$i"_R2_001.fastq.gz \
-        ../trimmed_read_files/unpaired_reverse_reads/experimental_lines/S"$i"_R2_001.fastq.gz \
+        ../trimmed_read_files/paired_forward_reads/experimental_lines/VAN_"$i"_R1_001.fastq.gz \
+        ../trimmed_read_files/unpaired_forward_reads/experimental_lines/VAN_"$i"_R1_001.fastq.gz \
+        ../trimmed_read_files/paired_reverse_reads/experimental_lines/VAN_"$i"_R2_001.fastq.gz \
+        ../trimmed_read_files/unpaired_reverse_reads/experimental_lines/VAN_"$i"_R2_001.fastq.gz \
         SLIDINGWINDOW:4:20 MINLEN:36
 done
 
@@ -83,9 +83,9 @@ do
         -threads 24 \
         ../raw_reads/control_lines/C"$i"_R1_001.fastq.gz \
         ../raw_reads/control_lines/C"$i"_R2_001.fastq.gz \
-        ../trimmed_read_files/paired_forward_reads/control_lines/C"$i"_R1_001.fastq.gz \
-        ../trimmed_read_files/unpaired_forward_reads/control_lines/C"$i"_R1_001.fastq.gz \
-        ../trimmed_read_files/paired_reverse_reads/control_lines/C"$i"_R2_001.fastq.gz \
-        ../trimmed_read_files/unpaired_reverse_reads/control_lines/C"$i"_R2_001.fastq.gz \
+        ../trimmed_read_files/paired_forward_reads/control_lines/CTL_"$i"_R1_001.fastq.gz \
+        ../trimmed_read_files/unpaired_forward_reads/control_lines/CTL_"$i"_R1_001.fastq.gz \
+        ../trimmed_read_files/paired_reverse_reads/control_lines/CTL_"$i"_R2_001.fastq.gz \
+        ../trimmed_read_files/unpaired_reverse_reads/control_lines/CTL_"$i"_R2_001.fastq.gz \
         SLIDINGWINDOW:4:20 MINLEN:36
 done

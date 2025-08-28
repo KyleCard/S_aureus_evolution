@@ -9,8 +9,8 @@ Data, figures, and analysis code for the following manuscript:
 This repository contains:
 
 - An R Notebook that loads curated variant calls and MIC measurements, performs statistical analyses, and renders the figures.
-- Bash/Python pipeline scripts used to process short-read sequencing data with *breseq* and summarize read-level support for variants.
-	- We deposited all *breseq* data, including raw HTML outputs, FASTA files, Variant Call Format (VCF) files, Binary Alignment Map (BAM) files, and GenomeDiff files for all samples in the [Dryad Digital Repository](http://datadryad.org/share/P5-zlNn6ad1LO6z90cSFSHoNlK6DtANIPrCihVYleiw) (DOI: 10.5061/dryad.qnk98sfw2).
+- Bash/Python pipeline scripts used to process short-read sequencing data with `breseq` and summarize read-level support for variants.
+	- We deposited all `breseq` data, including raw HTML outputs, FASTA files, Variant Call Format (VCF) files, Binary Alignment Map (BAM) files, and GenomeDiff files for all samples in the [Dryad Digital Repository](http://datadryad.org/share/P5-zlNn6ad1LO6z90cSFSHoNlK6DtANIPrCihVYleiw) (DOI: 10.5061/dryad.qnk98sfw2).
 - MIC and curated variant files as input data for the R Notebook.
 - Curated variant summaries and clustering results from the Bayesian latent-class analysis.
 - Final figures as PDF/TIF.
@@ -37,7 +37,7 @@ If you only want to browse results, open the rendered notebook markdown: `S_aure
 - `sequencing_pipeline/` — Scripts to process raw reads and summarize variant support:
 	- `1_trimmomatic.sh` — Quality trim paired-end reads.
 	- `2_generate_updated_reference.sh` — Call ancestor vs ATCC_29213 and apply differences to create an updated reference.
-	- `3_map_sequences.sh` — Run *breseq* (polymorphism mode) on experimental and control lines.
+	- `3_map_sequences.sh` — Run `breseq` (polymorphism mode) on experimental and control lines.
 	- `4_identify_reads_supporting_variants.sh` — Extract BAM reads overlapping variant sites with samtools.
 	- `5_summarize_base_qualities.py` — Parse supporting reads and compute per-variant support/quality summaries with pysam.
 - `S_aureus_evolution_files/figure-gfm/` — Knitted figures for GitHub rendering.
@@ -67,12 +67,12 @@ Antibiotic abbreviations used in the notebook:
 - `AD` — Alternate-allele supporting read count.
 - `median_phred` — Median base quality for variant-supporting bases.
 - `median_error` — Approximate error rate from base qualities.
-- `consensus_score` — *breseq* consensus evidence score.
-- `polymorphism_score` — *breseq* polymorphism evidence score.
+- `consensus_score` — `breseq` consensus evidence score.
+- `polymorphism_score` — `breseq` polymorphism evidence score.
 - `notes` — Manual curation notes; NA if kept; used to flag homopolymers, repeats, multicopy elements, and variants with low position-hash scores.
 - `qualifying_mutation` — Boolean used to select variants for analysis.
 - `vancomycin` — Indicator for treated or control group (per row).
-- `evidence` — *breseq* evidence type (`RA` read-alignment, junctions for SVs, etc.).
+- `evidence` — `breseq` evidence type (`RA` read-alignment, junctions for SVs, etc.).
 - `seq_id`, `position` — Genomic coordinates (reference-dependent).
 - `mutation_type` — SNP, small indel, intergenic, junction, etc.
 - `mutation` — Human-readable change (e.g., `G -> T`, `(T)6 -> 5`, `H261N`).
@@ -114,7 +114,7 @@ The R Notebook (`S_aureus_evolution.Rmd`) performs the following:
 - Loads `mutations.csv`, filters curated variants, constructs a population-by-gene mutation matrix, and computes Dice’s similarity coefficient within groups (treated vs control) with permutation testing (10,000 label shuffles) to assess significance (Figure S1).
 
 3) Feature selection with weighted elastic-net logistic regression
-- Uses *breseq* evidence scores to derive per-feature penalty factors (higher penalty for low-confidence variants) and fits elastic-net models with cross-validation (AUC). Bootstraps (1,000 iterations) to assess feature stability and derives odds ratios and CIs for selected genes (Figure 2B, 2C heatmap of selected features).
+- Uses `breseq` evidence scores to derive per-feature penalty factors (higher penalty for low-confidence variants) and fits elastic-net models with cross-validation (AUC). Bootstraps (1,000 iterations) to assess feature stability and derives odds ratios and CIs for selected genes (Figure 2B, 2C heatmap of selected features).
 
 4) Bayesian latent class analysis (BLCA)
 - Runs BLCA on selected gene sets within groups to identify mutation pattern classes and builds consensus matrices; performs hierarchical clustering and exports cluster assignments and heatmaps for K = 2–7 (figures saved to `figures/cluster_plots/`).
@@ -164,7 +164,7 @@ These scripts are designed for a Unix-like environment (Linux or Windows 11 with
 
 Dependencies and versions used in scripts:
 - Trimmomatic 0.39
-- *breseq* 0.39.0 (includes `gdtools`)
+- `breseq` 0.39.0 (includes `gdtools`)
 - samtools 1.21
 - Python 3.8+ with `pysam`
 
@@ -180,7 +180,7 @@ bash sequencing_pipeline/1_trimmomatic.sh
 bash sequencing_pipeline/2_generate_updated_reference.sh
 ```
 
-3) Map experimental and control lines with *breseq* (polymorphism mode)
+3) Map experimental and control lines with `breseq` (polymorphism mode)
 ```bash
 bash sequencing_pipeline/3_map_sequences.sh
 ```
