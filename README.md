@@ -1,8 +1,8 @@
 ## Evolution under vancomycin selection drives divergent collateral sensitivity patterns in *Staphylococcus aureus*
 
-Data, figures, and analysis code for the following manuscript:
-[https://www.biorxiv.org/content/10.1101/2023.11.30.569373v3](https://www.biorxiv.org/content/10.1101/2023.11.30.569373v3)
+Data, figures, and analysis code for the following paper:
 
+K.J. Card, D. Crozier, A. Durmaz, J. Gray, J. Creary, A. Stocks, J. Maltas, R.A. Bonomo, Z.D.C. Burke, & J.G. Scott, Evolution under vancomycin selection drives divergent collateral sensitivity patterns in *Staphylococcus aureus*, *Proc. Natl. Acad. Sci. U.S.A.* 122 (39) e2507962122, https://doi.org/10.1073/pnas.2507962122 (2025).
 
 ## Overview
 
@@ -219,11 +219,11 @@ If you want to:
 
 ## Citation
 
-If you use this code or data, please cite the associated manuscript:
+If you use this code or data, please cite the associated paper:
 
-K. Card, D. Crozier, *et al.*, Evolution under vancomycin selection drives divergent collateral sensitivity patterns in *Staphylococcus aureus*. bioRxiv (2025). DOI: 10.1101/2023.11.30.569373
+K.J. Card, D. Crozier, A. Durmaz, J. Gray, J. Creary, A. Stocks, J. Maltas, R.A. Bonomo, Z.D.C. Burke, & J.G. Scott, Evolution under vancomycin selection drives divergent collateral sensitivity patterns in *Staphylococcus aureus*, *Proc. Natl. Acad. Sci. U.S.A.* 122 (39) e2507962122, https://doi.org/10.1073/pnas.2507962122 (2025).
 
-An updated citation with DOI will be added upon publication. You may also cite this repository’s specific commit if referencing code.
+You may also cite this repository’s specific commit if referencing code.
 
 
 ## License and reuse
